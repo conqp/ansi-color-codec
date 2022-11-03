@@ -1,36 +1,19 @@
-pub fn encode(bytes: impl Iterator<Item = u8>) -> String {
+mod triplets;
+
+use triplets::Triplets;
+
+pub fn encode(bytes: impl Iterator<Item = u8> + 'static) -> String {
     encode_with_fill(bytes, ' ')
 }
 
-pub fn encode_with_fill(bytes: impl Iterator<Item = u8>, fill: char) -> String {
-    to_triplets(to_bits(bytes))
-        .iter()
-        .map(|triplet| encode_color(*triplet, fill))
+pub fn encode_with_fill(bytes: impl Iterator<Item = u8> + 'static, fill: char) -> String {
+    Triplets::from(to_bits(bytes))
+        .map(|triplet| encode_color(triplet, fill))
         .collect()
 }
 
 fn to_bits(bytes: impl Iterator<Item = u8>) -> impl Iterator<Item = bool> {
     bytes.flat_map(|byte| (0..8).map(move |offset| byte & (1 << offset) != 0))
-}
-
-fn to_triplets(bits: impl Iterator<Item = bool>) -> Vec<u8> {
-    let mut triplets = Vec::new();
-    let mut triplet = 0;
-
-    for (index, bit) in bits.enumerate() {
-        triplet += (bit as u8) << (index % 3);
-
-        if index % 3 == 2 {
-            triplets.push(triplet);
-            triplet = 0;
-        }
-    }
-
-    if triplet != 0 {
-        triplets.push(triplet);
-    }
-
-    triplets
 }
 
 fn encode_color(color: u8, fill: char) -> String {
