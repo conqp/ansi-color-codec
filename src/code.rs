@@ -1,3 +1,5 @@
+const NUMBER_MASK: u8 = 0b1111;
+
 pub struct Code {
     bytes: [u8; 6],
 }
@@ -8,7 +10,7 @@ impl Code {
     }
 
     pub fn number(&self) -> u8 {
-        (self.bytes[2] & 0b1111) * 10 + (self.bytes[3] & 0b1111)
+        (self.bytes[2] & NUMBER_MASK) * 10 + (self.bytes[3] & NUMBER_MASK)
     }
 
     pub fn byte(&self) -> u8 {
