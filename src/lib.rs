@@ -1,7 +1,11 @@
 pub fn encode(bytes: impl Iterator<Item = u8>) -> String {
+    encode_with_fill(bytes, ' ')
+}
+
+pub fn encode_with_fill(bytes: impl Iterator<Item = u8>, fill: char) -> String {
     to_triplets(to_bits(bytes))
         .iter()
-        .map(|triplet| encode_color(*triplet))
+        .map(|triplet| encode_color(*triplet, fill))
         .collect()
 }
 
@@ -29,6 +33,6 @@ fn to_triplets(bits: impl Iterator<Item = bool>) -> Vec<u8> {
     triplets
 }
 
-fn encode_color(color: u8) -> String {
-    format!("\x1b[{}m ", color + 40)
+fn encode_color(color: u8, fill: char) -> String {
+    format!("\x1b[{}m{}", color + 40, fill)
 }
