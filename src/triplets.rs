@@ -1,13 +1,11 @@
 pub struct Triplets {
     bits: Box<dyn Iterator<Item = bool>>,
-    exhausted: bool,
 }
 
 impl Triplets {
     pub fn from(bits: impl Iterator<Item = bool> + 'static) -> Self {
         Self {
             bits: Box::new(bits),
-            exhausted: false,
         }
     }
 }
@@ -16,12 +14,13 @@ impl Iterator for Triplets {
     type Item = u8;
 
     fn next(&mut self) -> Option<Self::Item> {
+        let mut exhausted = false;
         let mut triplet = 0;
 
         for index in 0..3 {
             match self.bits.next() {
                 None => {
-                    self.exhausted = true;
+                    exhausted = true;
                     break;
                 }
                 Some(bit) => {
@@ -30,7 +29,7 @@ impl Iterator for Triplets {
             }
         }
 
-        if triplet == 0 && self.exhausted {
+        if triplet == 0 && exhausted {
             None
         } else {
             Some(triplet)
