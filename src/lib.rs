@@ -1,15 +1,15 @@
 mod triplets;
-
 use triplets::Triplets;
 
-pub fn encode(bytes: impl Iterator<Item = u8> + 'static) -> String {
+pub fn encode(bytes: impl Iterator<Item = u8> + 'static) -> impl Iterator<Item = String> {
     encode_with_fill(bytes, ' ')
 }
 
-pub fn encode_with_fill(bytes: impl Iterator<Item = u8> + 'static, fill: char) -> String {
-    Triplets::from(to_bits(bytes))
-        .map(|triplet| encode_color(triplet, fill))
-        .collect()
+pub fn encode_with_fill(
+    bytes: impl Iterator<Item = u8> + 'static,
+    fill: char,
+) -> impl Iterator<Item = String> {
+    Triplets::from(to_bits(bytes)).map(move |triplet| encode_color(triplet, fill))
 }
 
 fn to_bits(bytes: impl Iterator<Item = u8>) -> impl Iterator<Item = bool> {
