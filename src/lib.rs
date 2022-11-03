@@ -1,23 +1,20 @@
-pub fn encode(bytes: &[u8]) -> String {
-    to_triplets(&to_bits(bytes))
+pub fn encode(bytes: impl Iterator<Item = u8>) -> String {
+    to_triplets(to_bits(bytes))
         .iter()
         .map(|triplet| encode_color(*triplet))
         .collect()
 }
 
-fn to_bits(bytes: &[u8]) -> Vec<bool> {
-    bytes
-        .iter()
-        .flat_map(|byte| (0..8).map(move |offset| byte & (1 << offset) != 0))
-        .collect()
+fn to_bits(bytes: impl Iterator<Item = u8>) -> impl Iterator<Item = bool> {
+    bytes.flat_map(|byte| (0..8).map(move |offset| byte & (1 << offset) != 0))
 }
 
-fn to_triplets(bits: &[bool]) -> Vec<u8> {
+fn to_triplets(bits: impl Iterator<Item = bool>) -> Vec<u8> {
     let mut triplets = Vec::new();
     let mut triplet = 0;
 
-    for (index, bit) in bits.iter().enumerate() {
-        triplet += (*bit as u8) << (index % 3);
+    for (index, bit) in bits.enumerate() {
+        triplet += (bit as u8) << (index % 3);
 
         if index % 3 == 2 {
             triplets.push(triplet);

@@ -3,7 +3,8 @@ use std::io::stdin;
 use std::io::Read;
 
 fn main() {
-    let bytes: Vec<u8> = stdin().bytes().map(|result| result.unwrap()).collect();
-    let result = encode(&bytes);
-    println!("{}\x1b[0m", result);
+    println!(
+        "{}\x1b[0m",
+        encode(stdin().bytes().map(|result| result.unwrap()))
+    );
 }
