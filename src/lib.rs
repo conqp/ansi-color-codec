@@ -1,11 +1,7 @@
 mod triplets;
 use triplets::Triplets;
 
-pub fn encode(bytes: impl Iterator<Item = u8> + 'static) -> impl Iterator<Item = String> {
-    encode_with_fill(bytes, ' ')
-}
-
-pub fn encode_with_fill(
+pub fn encode(
     bytes: impl Iterator<Item = u8> + 'static,
     fill: char,
 ) -> impl Iterator<Item = String> {
