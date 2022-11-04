@@ -14,20 +14,16 @@ where
 }
 
 pub struct Code {
-    bytes: [u8; 6],
+    number: u8,
 }
 
 impl Code {
-    pub fn new(bytes: [u8; 6]) -> Self {
-        Self { bytes }
-    }
-
-    pub fn number(&self) -> u8 {
-        (self.bytes[2] & NUMBER_MASK) * 10 + (self.bytes[3] & NUMBER_MASK)
+    pub fn new(number: u8) -> Self {
+        Self { number }
     }
 
     pub fn byte(&self) -> u8 {
-        self.number() - 40
+        self.number - 40
     }
 
     pub fn triplet(&self) -> [bool; 3] {
@@ -59,12 +55,28 @@ impl Iterator for CodeIterator {
     type Item = Code;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut block = [0, 0, 0, 0, 0, 0];
+        let mut digits = Vec::new();
 
-        for num in block.iter_mut() {
+        if self.bytes.next().unwrap_or(0) != 0x1b {
+            return None;
+        }
+
+        if self.bytes.next().unwrap_or(0) != 91 {
+            // "["
+            return None;
+        }
+
+        loop {
             match self.bytes.next() {
                 Some(byte) => {
-                    *num = byte;
+                    if byte.is_ascii_digit() {
+                        digits.push(byte);
+                    } else if byte == 109 {
+                        // "m"
+                        break;
+                    } else {
+                        return None;
+                    }
                 }
                 None => {
                     return None;
@@ -72,6 +84,20 @@ impl Iterator for CodeIterator {
             }
         }
 
-        Some(Code::new(block))
+        if self.bytes.next().unwrap_or(0) != 32 {
+            return None;
+        }
+
+        match digits
+            .iter()
+            .enumerate()
+            .map(|(index, digit)| {
+                (digit & NUMBER_MASK) * (10_u8.pow((digits.len() - index - 1) as u32))
+            })
+            .sum()
+        {
+            0 => None,
+            sum => Some(Code::new(sum)),
+        }
     }
 }
