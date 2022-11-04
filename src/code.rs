@@ -61,8 +61,7 @@ impl Iterator for CodeIterator {
             return None;
         }
 
-        if self.bytes.next().unwrap_or(0) != 91 {
-            // "["
+        if self.bytes.next().unwrap_or(0) as char != '[' {
             return None;
         }
 
@@ -71,8 +70,7 @@ impl Iterator for CodeIterator {
                 Some(byte) => {
                     if byte.is_ascii_digit() {
                         digits.push(byte);
-                    } else if byte == 109 {
-                        // "m"
+                    } else if byte as char == 'm' {
                         break;
                     } else {
                         return None;
