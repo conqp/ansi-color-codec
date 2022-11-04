@@ -1,6 +1,6 @@
 pub type Triplet = u8;
 
-pub trait Triplets: Iterator<Item = bool> {
+pub trait Triplets {
     fn triplets(self) -> TripletIterator;
 }
 

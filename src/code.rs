@@ -1,6 +1,6 @@
 const NUMBER_MASK: u8 = 0b1111;
 
-pub trait ToCodes: Iterator<Item = u8> {
+pub trait ToCodes {
     fn codes(self) -> CodeIterator;
 }
 
