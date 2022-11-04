@@ -1,3 +1,6 @@
+mod bits;
+use bits::BytesToBits;
+
 mod bytes;
 use bytes::BitsToBytes;
 
@@ -5,15 +8,13 @@ mod code;
 use code::ToCodes;
 
 mod triplets;
-use triplets::Triplets;
+use triplets::{ToColor, Triplets};
 
-pub fn encode(
-    bytes: impl Iterator<Item = u8> + 'static,
-    fill: char,
-) -> impl Iterator<Item = String> {
-    to_bits(bytes)
+pub fn encode(bytes: impl Iterator<Item = u8> + 'static) -> impl Iterator<Item = String> {
+    bytes
+        .bits()
         .triplets()
-        .map(move |triplet| encode_color(triplet, fill))
+        .map(move |triplet| triplet.to_color())
 }
 
 pub fn decode(bytes: impl Iterator<Item = u8> + 'static) -> impl Iterator<Item = u8> {
@@ -22,12 +23,4 @@ pub fn decode(bytes: impl Iterator<Item = u8> + 'static) -> impl Iterator<Item =
         .filter(|code| code.number() != 0)
         .flat_map(move |code| code.triplet().into_iter())
         .bytes()
-}
-
-fn to_bits(bytes: impl Iterator<Item = u8>) -> impl Iterator<Item = bool> {
-    bytes.flat_map(|byte| (0..8).map(move |offset| byte & (1 << offset) != 0))
-}
-
-fn encode_color(color: u8, fill: char) -> String {
-    format!("\x1b[{}m{}", color + 40, fill)
 }

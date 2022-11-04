@@ -11,6 +11,16 @@ where
     }
 }
 
+pub trait ToColor {
+    fn to_color(self) -> String;
+}
+
+impl ToColor for u8 {
+    fn to_color(self) -> String {
+        format!("\x1b[{}m ", self + 40)
+    }
+}
+
 pub struct TripletIterator {
     bits: Box<dyn Iterator<Item = bool>>,
 }

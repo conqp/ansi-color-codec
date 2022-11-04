@@ -11,9 +11,6 @@ pub struct Args {
 
     #[clap(short, long, name = "no-clear")]
     pub no_clear: bool,
-
-    #[clap(short, long, name = "fill", value_parser, default_value_t = ' ')]
-    pub fill: char,
 }
 
 fn main() {
@@ -22,7 +19,7 @@ fn main() {
     if args.decode {
         do_decode()
     } else {
-        do_encode(args.fill, !args.no_clear)
+        do_encode(!args.no_clear)
     }
 }
 
@@ -36,8 +33,8 @@ fn do_decode() {
     stdout().flush().expect("Could not flush STDOUT");
 }
 
-fn do_encode(fill: char, clear: bool) {
-    for code in encode(stdin().bytes().map(|result| result.unwrap()), fill) {
+fn do_encode(clear: bool) {
+    for code in encode(stdin().bytes().map(|result| result.unwrap())) {
         print!("{}", code);
     }
 
