@@ -5,7 +5,7 @@ use std::io::{stdin, stdout, Write};
 
 #[derive(Parser)]
 #[clap(about, author, version)]
-pub struct Args {
+struct Args {
     #[clap(short, long, name = "decode")]
     pub decode: bool,
 
