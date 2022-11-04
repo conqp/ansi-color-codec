@@ -1,8 +1,8 @@
 mod bitstream;
 use bitstream::{BitsToBytes, BytesToBits};
 
-mod code;
-use code::ToCodes;
+mod color_code;
+use color_code::ToColorCodes;
 
 mod triplets;
 use triplets::{ToColor, Triplets};

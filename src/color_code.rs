@@ -1,23 +1,23 @@
 const NUMBER_MASK: u8 = 0b1111;
 
-pub trait ToCodes {
-    fn codes(self) -> CodeIterator;
+pub trait ToColorCodes {
+    fn codes(self) -> ColorCodeIterator;
 }
 
-impl<T> ToCodes for T
+impl<T> ToColorCodes for T
 where
     T: Iterator<Item = u8> + 'static,
 {
-    fn codes(self) -> CodeIterator {
-        CodeIterator::from(self)
+    fn codes(self) -> ColorCodeIterator {
+        ColorCodeIterator::from(self)
     }
 }
 
-pub struct Code {
+pub struct ColorCode {
     number: u8,
 }
 
-impl Code {
+impl ColorCode {
     pub fn new(number: u8) -> Self {
         Self { number }
     }
@@ -36,11 +36,11 @@ impl Code {
     }
 }
 
-pub struct CodeIterator {
+pub struct ColorCodeIterator {
     bytes: Box<dyn Iterator<Item = u8>>,
 }
 
-impl<T> From<T> for CodeIterator
+impl<T> From<T> for ColorCodeIterator
 where
     T: Iterator<Item = u8> + 'static,
 {
@@ -51,8 +51,8 @@ where
     }
 }
 
-impl Iterator for CodeIterator {
-    type Item = Code;
+impl Iterator for ColorCodeIterator {
+    type Item = ColorCode;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut digits = Vec::new();
@@ -95,7 +95,7 @@ impl Iterator for CodeIterator {
             .sum()
         {
             0 => None,
-            sum => Some(Code::new(sum)),
+            sum => Some(ColorCode::new(sum)),
         }
     }
 }
