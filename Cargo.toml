@@ -10,7 +10,6 @@ clap = { version = "4.0.18", features = ["derive"] }
 
 [profile.release]
 strip = true
-opt-level = "z"
 lto = true
 codegen-units = 1
 panic = "abort"
