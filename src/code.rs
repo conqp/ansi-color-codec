@@ -34,6 +34,10 @@ impl Code {
         let byte = self.byte();
         [byte & 0b001 != 0, byte & 0b010 != 0, byte & 0b100 != 0]
     }
+
+    pub fn triplets(&self) -> Box<dyn Iterator<Item = bool>> {
+        Box::new(self.triplet().into_iter())
+    }
 }
 
 pub struct CodeIterator {

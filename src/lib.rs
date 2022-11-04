@@ -21,6 +21,6 @@ pub fn decode(bytes: impl Iterator<Item = u8> + 'static) -> impl Iterator<Item =
     bytes
         .codes()
         .filter(|code| code.number() != 0)
-        .flat_map(move |code| code.triplet().into_iter())
+        .flat_map(move |code| code.triplets())
         .bytes()
 }
