@@ -1,8 +1,21 @@
-pub struct Triplets {
+pub trait Triplets: Iterator<Item = bool> {
+    fn triplets(self) -> TripletIterator;
+}
+
+impl<T> Triplets for T
+where
+    T: Iterator<Item = bool> + 'static,
+{
+    fn triplets(self) -> TripletIterator {
+        TripletIterator::from(self)
+    }
+}
+
+pub struct TripletIterator {
     bits: Box<dyn Iterator<Item = bool>>,
 }
 
-impl<T> From<T> for Triplets
+impl<T> From<T> for TripletIterator
 where
     T: Iterator<Item = bool> + 'static,
 {
@@ -13,7 +26,7 @@ where
     }
 }
 
-impl Iterator for Triplets {
+impl Iterator for TripletIterator {
     type Item = u8;
 
     fn next(&mut self) -> Option<Self::Item> {

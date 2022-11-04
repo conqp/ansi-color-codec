@@ -1,8 +1,21 @@
-pub struct BitsToBytes {
+pub trait BitsToBytes: Iterator<Item = bool> {
+    fn bytes(self) -> BitsToBytesIterator;
+}
+
+impl<T> BitsToBytes for T
+where
+    T: Iterator<Item = bool> + 'static,
+{
+    fn bytes(self) -> BitsToBytesIterator {
+        BitsToBytesIterator::from(self)
+    }
+}
+
+pub struct BitsToBytesIterator {
     bits: Box<dyn Iterator<Item = bool>>,
 }
 
-impl<T> From<T> for BitsToBytes
+impl<T> From<T> for BitsToBytesIterator
 where
     T: Iterator<Item = bool> + 'static,
 {
@@ -13,7 +26,7 @@ where
     }
 }
 
-impl Iterator for BitsToBytes {
+impl Iterator for BitsToBytesIterator {
     type Item = u8;
 
     fn next(&mut self) -> Option<Self::Item> {

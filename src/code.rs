@@ -1,5 +1,18 @@
 const NUMBER_MASK: u8 = 0b1111;
 
+pub trait ToCodes: Iterator<Item = u8> {
+    fn codes(self) -> CodeIterator;
+}
+
+impl<T> ToCodes for T
+where
+    T: Iterator<Item = u8> + 'static,
+{
+    fn codes(self) -> CodeIterator {
+        CodeIterator::from(self)
+    }
+}
+
 pub struct Code {
     bytes: [u8; 6],
 }
@@ -23,11 +36,11 @@ impl Code {
     }
 }
 
-pub struct Codes {
+pub struct CodeIterator {
     bytes: Box<dyn Iterator<Item = u8>>,
 }
 
-impl<T> From<T> for Codes
+impl<T> From<T> for CodeIterator
 where
     T: Iterator<Item = u8> + 'static,
 {
@@ -38,7 +51,7 @@ where
     }
 }
 
-impl Iterator for Codes {
+impl Iterator for CodeIterator {
     type Item = Code;
 
     fn next(&mut self) -> Option<Self::Item> {

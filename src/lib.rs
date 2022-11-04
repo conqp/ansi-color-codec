@@ -1,25 +1,27 @@
-mod triplets;
-use triplets::Triplets;
-
-mod code;
-use code::Codes;
-
 mod bytes;
 use bytes::BitsToBytes;
+
+mod code;
+use code::ToCodes;
+
+mod triplets;
+use triplets::Triplets;
 
 pub fn encode(
     bytes: impl Iterator<Item = u8> + 'static,
     fill: char,
 ) -> impl Iterator<Item = String> {
-    Triplets::from(to_bits(bytes)).map(move |triplet| encode_color(triplet, fill))
+    to_bits(bytes)
+        .triplets()
+        .map(move |triplet| encode_color(triplet, fill))
 }
 
 pub fn decode(bytes: impl Iterator<Item = u8> + 'static) -> impl Iterator<Item = u8> {
-    BitsToBytes::from(
-        Codes::from(bytes)
-            .filter(|code| code.number() != 0)
-            .flat_map(move |code| code.triplet().into_iter()),
-    )
+    bytes
+        .codes()
+        .filter(|code| code.number() != 0)
+        .flat_map(move |code| code.triplet().into_iter())
+        .bytes()
 }
 
 fn to_bits(bytes: impl Iterator<Item = u8>) -> impl Iterator<Item = bool> {
