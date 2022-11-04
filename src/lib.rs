@@ -1,8 +1,5 @@
-mod bits;
-use bits::BytesToBits;
-
-mod bytes;
-use bytes::BitsToBytes;
+mod bitstream;
+use bitstream::{BitsToBytes, BytesToBits};
 
 mod code;
 use code::ToCodes;
