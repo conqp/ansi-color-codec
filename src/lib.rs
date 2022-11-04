@@ -2,7 +2,7 @@ mod bitstream;
 use bitstream::{BitsToBytes, BytesToBits};
 
 mod color_code;
-use color_code::ToColorCodes;
+use color_code::BytesToColorCodes;
 
 mod triplets;
 use triplets::{ToColor, Triplets};
