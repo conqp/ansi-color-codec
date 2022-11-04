@@ -27,8 +27,11 @@ pub struct Codes {
     bytes: Box<dyn Iterator<Item = u8>>,
 }
 
-impl Codes {
-    pub fn from(bytes: impl Iterator<Item = u8> + 'static) -> Self {
+impl<T> From<T> for Codes
+where
+    T: Iterator<Item = u8> + 'static,
+{
+    fn from(bytes: T) -> Self {
         Self {
             bytes: Box::new(bytes),
         }

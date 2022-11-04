@@ -2,8 +2,11 @@ pub struct Triplets {
     bits: Box<dyn Iterator<Item = bool>>,
 }
 
-impl Triplets {
-    pub fn from(bits: impl Iterator<Item = bool> + 'static) -> Self {
+impl<T> From<T> for Triplets
+where
+    T: Iterator<Item = bool> + 'static,
+{
+    fn from(bits: T) -> Self {
         Self {
             bits: Box::new(bits),
         }

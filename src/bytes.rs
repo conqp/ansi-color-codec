@@ -2,8 +2,11 @@ pub struct BitsToBytes {
     bits: Box<dyn Iterator<Item = bool>>,
 }
 
-impl BitsToBytes {
-    pub fn from(bits: impl Iterator<Item = bool> + 'static) -> Self {
+impl<T> From<T> for BitsToBytes
+where
+    T: Iterator<Item = bool> + 'static,
+{
+    fn from(bits: T) -> Self {
         Self {
             bits: Box::new(bits),
         }
