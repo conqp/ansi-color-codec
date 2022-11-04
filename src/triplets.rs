@@ -1,3 +1,5 @@
+pub type Triplet = u8;
+
 pub trait Triplets: Iterator<Item = bool> {
     fn triplets(self) -> TripletIterator;
 }
@@ -15,7 +17,7 @@ pub trait ToColor {
     fn to_color(self) -> String;
 }
 
-impl ToColor for u8 {
+impl ToColor for Triplet {
     fn to_color(self) -> String {
         format!("\x1b[{}m ", self + 40)
     }
@@ -37,7 +39,7 @@ where
 }
 
 impl Iterator for TripletIterator {
-    type Item = u8;
+    type Item = Triplet;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut exhausted = false;
@@ -50,7 +52,7 @@ impl Iterator for TripletIterator {
                     break;
                 }
                 Some(bit) => {
-                    triplet += (bit as u8) << index;
+                    triplet += (bit as Triplet) << index;
                 }
             }
         }
