@@ -1,19 +1,19 @@
-pub trait BytesToBits {
-    fn bits(self) -> Box<dyn Iterator<Item = bool>>;
+pub trait BytesToBits<'a> {
+    fn bits(self) -> Box<dyn Iterator<Item = bool> + 'a>;
 }
 
-impl<T> BytesToBits for T
+impl<'a, T> BytesToBits<'a> for T
 where
-    T: Iterator<Item = u8> + 'static,
+    T: Iterator<Item = u8> + 'a,
 {
-    fn bits(self) -> Box<dyn Iterator<Item = bool>> {
+    fn bits(self) -> Box<dyn Iterator<Item = bool> + 'a> {
         Box::new(self.flat_map(|byte| (0..8).map(move |offset| byte & (1 << offset) != 0)))
     }
 }
 
 pub trait BitsToBytes<T>
 where
-    T: Iterator<Item = bool>
+    T: Iterator<Item = bool>,
 {
     fn bytes(self) -> BitsToBytesIterator<T>;
 }
@@ -29,7 +29,7 @@ where
 
 pub struct BitsToBytesIterator<T>
 where
-    T: Iterator<Item = bool>
+    T: Iterator<Item = bool>,
 {
     bits: T,
 }
@@ -39,13 +39,13 @@ where
     T: Iterator<Item = bool>,
 {
     fn from(bits: T) -> Self {
-        Self { bits, }
+        Self { bits }
     }
 }
 
 impl<T> Iterator for BitsToBytesIterator<T>
 where
-    T: Iterator<Item = bool>
+    T: Iterator<Item = bool>,
 {
     type Item = u8;
 
