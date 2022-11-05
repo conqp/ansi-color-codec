@@ -2,12 +2,12 @@ pub type Triplet = u8;
 
 pub trait Triplets<T>
 where
-    T: Iterator<Item = bool>,
+    T: Iterator<Item = Triplet>,
 {
-    fn triplets(self) -> TripletIterator<T>;
+    fn triplets(self) -> T;
 }
 
-impl<T> Triplets<T> for T
+impl<T> Triplets<TripletIterator<T>> for T
 where
     T: Iterator<Item = bool>,
 {

@@ -2,12 +2,12 @@ const NUMBER_MASK: u8 = 0b1111;
 
 pub trait BytesToColorCodes<T>
 where
-    T: Iterator<Item = u8>,
+    T: Iterator<Item = ColorCode>,
 {
-    fn codes(self) -> ColorCodeIterator<T>;
+    fn codes(self) -> T;
 }
 
-impl<T> BytesToColorCodes<T> for T
+impl<T> BytesToColorCodes<ColorCodeIterator<T>> for T
 where
     T: Iterator<Item = u8>,
 {
