@@ -1,13 +1,68 @@
-pub trait BytesToBits<'a> {
-    fn bits(self) -> Box<dyn Iterator<Item = bool> + 'a>;
+pub trait BytesToBits<T>
+where
+    T: Iterator<Item = bool>,
+{
+    fn bits(self) -> T;
 }
 
-impl<'a, T> BytesToBits<'a> for T
+impl<T> BytesToBits<BytesToBitsIterator<T>> for T
 where
-    T: Iterator<Item = u8> + 'a,
+    T: Iterator<Item = u8>,
 {
-    fn bits(self) -> Box<dyn Iterator<Item = bool> + 'a> {
-        Box::new(self.flat_map(|byte| (0..8).map(move |offset| byte & (1 << offset) != 0)))
+    fn bits(self) -> BytesToBitsIterator<T> {
+        BytesToBitsIterator::from(self)
+    }
+}
+
+pub struct BytesToBitsIterator<T>
+where
+    T: Iterator<Item = u8>,
+{
+    bytes: T,
+    current: Option<u8>,
+    index: u8,
+}
+
+impl<T> From<T> for BytesToBitsIterator<T>
+where
+    T: Iterator<Item = u8>,
+{
+    fn from(bytes: T) -> Self {
+        Self {
+            bytes,
+            current: None,
+            index: 0,
+        }
+    }
+}
+
+impl<T> Iterator for BytesToBitsIterator<T>
+where
+    T: Iterator<Item = u8>,
+{
+    type Item = bool;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index == 7 {
+            self.current = None;
+        }
+
+        match self.current {
+            None => match self.bytes.next() {
+                None => {
+                    return None;
+                }
+                Some(byte) => {
+                    self.current = Some(byte);
+                    self.index = 0;
+                }
+            },
+            Some(_) => (),
+        }
+
+        let result = self.current.unwrap() & (1 << self.index) != 0;
+        self.index += 1;
+        Some(result)
     }
 }
 
