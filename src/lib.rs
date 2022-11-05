@@ -7,7 +7,7 @@ use color_code::BytesToColorCodes;
 mod triplets;
 use triplets::{ToColor, Triplets};
 
-pub fn encode(bytes: impl Iterator<Item = u8>) -> impl Iterator<Item = String> {
+pub fn encode(bytes: impl Iterator<Item = u8> + 'static) -> impl Iterator<Item = String> {
     bytes
         .bits()
         .triplets()
