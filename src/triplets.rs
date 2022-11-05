@@ -1,14 +1,17 @@
 pub type Triplet = u8;
 
-pub trait Triplets {
-    fn triplets(self) -> TripletIterator;
+pub trait Triplets<T>
+where
+    T: Iterator<Item = bool>,
+{
+    fn triplets(self) -> TripletIterator<T>;
 }
 
-impl<T> Triplets for T
+impl<T> Triplets<T> for T
 where
-    T: Iterator<Item = bool> + 'static,
+    T: Iterator<Item = bool>,
 {
-    fn triplets(self) -> TripletIterator {
+    fn triplets(self) -> TripletIterator<T> {
         TripletIterator::from(self)
     }
 }
@@ -23,22 +26,28 @@ impl ToColor for Triplet {
     }
 }
 
-pub struct TripletIterator {
-    bits: Box<dyn Iterator<Item = bool>>,
+pub struct TripletIterator<T>
+where
+    T: Iterator<Item = bool>,
+{
+    bits: T,
 }
 
-impl<T> From<T> for TripletIterator
+impl<T> From<T> for TripletIterator<T>
 where
-    T: Iterator<Item = bool> + 'static,
+    T: Iterator<Item = bool>,
 {
     fn from(bits: T) -> Self {
         Self {
-            bits: Box::new(bits),
+            bits,
         }
     }
 }
 
-impl Iterator for TripletIterator {
+impl<T> Iterator for TripletIterator<T>
+where
+    T: Iterator<Item = bool>,
+{
     type Item = Triplet;
 
     fn next(&mut self) -> Option<Self::Item> {

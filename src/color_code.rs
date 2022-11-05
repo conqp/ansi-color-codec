@@ -1,14 +1,17 @@
 const NUMBER_MASK: u8 = 0b1111;
 
-pub trait BytesToColorCodes {
-    fn codes(self) -> ColorCodeIterator;
+pub trait BytesToColorCodes<T>
+where
+    T: Iterator<Item = u8>,
+{
+    fn codes(self) -> ColorCodeIterator<T>;
 }
 
-impl<T> BytesToColorCodes for T
+impl<T> BytesToColorCodes<T> for T
 where
-    T: Iterator<Item = u8> + 'static,
+    T: Iterator<Item = u8>,
 {
-    fn codes(self) -> ColorCodeIterator {
+    fn codes(self) -> ColorCodeIterator<T> {
         ColorCodeIterator::from(self)
     }
 }
@@ -36,22 +39,26 @@ impl ColorCode {
     }
 }
 
-pub struct ColorCodeIterator {
-    bytes: Box<dyn Iterator<Item = u8>>,
+pub struct ColorCodeIterator<T>
+where
+    T: Iterator<Item = u8>
+{
+    bytes: T,
 }
 
-impl<T> From<T> for ColorCodeIterator
+impl<T> From<T> for ColorCodeIterator<T>
 where
-    T: Iterator<Item = u8> + 'static,
+    T: Iterator<Item = u8>,
 {
     fn from(bytes: T) -> Self {
-        Self {
-            bytes: Box::new(bytes),
-        }
+        Self { bytes }
     }
 }
 
-impl Iterator for ColorCodeIterator {
+impl<T> Iterator for ColorCodeIterator<T>
+where
+    T: Iterator<Item = u8>,
+{
     type Item = ColorCode;
 
     fn next(&mut self) -> Option<Self::Item> {
