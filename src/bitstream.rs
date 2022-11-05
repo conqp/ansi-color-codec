@@ -11,35 +11,42 @@ where
     }
 }
 
-pub trait BitsToBytes {
-    fn bytes(self) -> BitsToBytesIterator;
+pub trait BitsToBytes<T>
+where
+    T: Iterator<Item = bool>
+{
+    fn bytes(self) -> BitsToBytesIterator<T>;
 }
 
-impl<T> BitsToBytes for T
+impl<T> BitsToBytes<T> for T
 where
-    T: Iterator<Item = bool> + 'static,
+    T: Iterator<Item = bool>,
 {
-    fn bytes(self) -> BitsToBytesIterator {
+    fn bytes(self) -> BitsToBytesIterator<T> {
         BitsToBytesIterator::from(self)
     }
 }
 
-pub struct BitsToBytesIterator {
-    bits: Box<dyn Iterator<Item = bool>>,
+pub struct BitsToBytesIterator<T>
+where
+    T: Iterator<Item = bool>
+{
+    bits: T,
 }
 
-impl<T> From<T> for BitsToBytesIterator
+impl<T> From<T> for BitsToBytesIterator<T>
 where
-    T: Iterator<Item = bool> + 'static,
+    T: Iterator<Item = bool>,
 {
     fn from(bits: T) -> Self {
-        Self {
-            bits: Box::new(bits),
-        }
+        Self { bits, }
     }
 }
 
-impl Iterator for BitsToBytesIterator {
+impl<T> Iterator for BitsToBytesIterator<T>
+where
+    T: Iterator<Item = bool>
+{
     type Item = u8;
 
     fn next(&mut self) -> Option<Self::Item> {
