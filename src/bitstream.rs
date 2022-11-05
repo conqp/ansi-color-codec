@@ -43,26 +43,27 @@ where
     type Item = bool;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.index == 7 {
+        if self.index > 7 {
             self.current = None;
+            self.index = 0;
         }
 
-        match self.current {
+        let current = match self.current {
             None => match self.bytes.next() {
                 None => {
                     return None;
                 }
                 Some(byte) => {
                     self.current = Some(byte);
-                    self.index = 0;
+                    byte
                 }
             },
-            Some(_) => (),
-        }
+            Some(byte) => byte,
+        };
 
-        let result = self.current.unwrap() & (1 << self.index) != 0;
+        let bit = current & (1 << self.index) != 0;
         self.index += 1;
-        Some(result)
+        Some(bit)
     }
 }
 
