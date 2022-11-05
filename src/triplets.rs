@@ -38,9 +38,7 @@ where
     T: Iterator<Item = bool>,
 {
     fn from(bits: T) -> Self {
-        Self {
-            bits,
-        }
+        Self { bits }
     }
 }
 

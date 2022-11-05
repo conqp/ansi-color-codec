@@ -41,7 +41,7 @@ impl ColorCode {
 
 pub struct ColorCodeIterator<T>
 where
-    T: Iterator<Item = u8>
+    T: Iterator<Item = u8>,
 {
     bytes: T,
 }
