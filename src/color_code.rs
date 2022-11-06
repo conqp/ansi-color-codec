@@ -89,7 +89,7 @@ where
             }
         }
 
-        if self.bytes.next().unwrap_or(0) != 32 {
+        if self.bytes.next().unwrap_or(0) as char != ' ' {
             return None;
         }
 
