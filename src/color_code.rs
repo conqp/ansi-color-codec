@@ -95,10 +95,9 @@ where
 
         match digits
             .iter()
+            .rev()
             .enumerate()
-            .map(|(index, digit)| {
-                (digit & NUMBER_MASK) * (10_u8.pow((digits.len() - index - 1) as u32))
-            })
+            .map(|(index, digit)| (digit & NUMBER_MASK) * 10_u8.pow(index as u32))
             .sum()
         {
             0 => None,
