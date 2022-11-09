@@ -47,7 +47,9 @@ fn decode_and_print(bytes: impl Iterator<Item = u8>) {
 
 fn encode_and_print(bytes: impl Iterator<Item = u8>, clear: bool) {
     for code in encode(bytes) {
-        print!("{}", code);
+        if stdout().write(code.as_bytes()).is_err() {
+            return;
+        }
     }
 
     if clear {
