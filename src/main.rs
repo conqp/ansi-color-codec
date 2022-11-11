@@ -1,5 +1,6 @@
 use clap::Parser;
 use color_code::{decode, encode};
+use ctrlc::set_handler;
 use std::io::Read;
 use std::io::{stdin, stdout, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -18,21 +19,18 @@ struct Args {
 fn main() {
     let args = Args::parse();
     let running = Arc::new(AtomicBool::new(true));
-    set_ctrl_c_handler(running.clone());
-    let bytes = stdin_while_running(running);
+    let bytes = stdin_while_running(running.clone());
+
+    set_handler(move || {
+        running.store(false, Ordering::SeqCst);
+    })
+    .expect("Error setting Ctrl-C handler");
 
     if args.decode {
         decode_and_print(bytes)
     } else {
         encode_and_print(bytes, !args.no_clear)
     }
-}
-
-fn set_ctrl_c_handler(running: Arc<AtomicBool>) {
-    ctrlc::set_handler(move || {
-        running.store(false, Ordering::SeqCst);
-    })
-    .expect("Error setting Ctrl-C handler");
 }
 
 fn decode_and_print(bytes: impl Iterator<Item = u8>) {
