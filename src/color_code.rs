@@ -16,6 +16,7 @@ where
     }
 }
 
+#[derive(Debug, Eq, PartialEq)]
 pub struct ColorCode {
     number: u8,
 }
@@ -39,6 +40,7 @@ impl ColorCode {
     }
 }
 
+#[derive(Debug, Eq, PartialEq)]
 pub struct ColorCodeIterator<T>
 where
     T: Iterator<Item = u8>,

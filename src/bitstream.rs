@@ -14,6 +14,7 @@ where
     }
 }
 
+#[derive(Debug, Eq, PartialEq)]
 pub struct BytesToBitsIterator<T>
 where
     T: Iterator<Item = u8>,
@@ -83,6 +84,7 @@ where
     }
 }
 
+#[derive(Debug, Eq, PartialEq)]
 pub struct BitsToBytesIterator<T>
 where
     T: Iterator<Item = bool>,

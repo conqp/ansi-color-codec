@@ -26,6 +26,7 @@ impl ToColor for Triplet {
     }
 }
 
+#[derive(Debug, Eq, PartialEq)]
 pub struct TripletIterator<T>
 where
     T: Iterator<Item = bool>,
