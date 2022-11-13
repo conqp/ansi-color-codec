@@ -2,6 +2,10 @@ const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
 const COLOR_OFFSET_LOW: u8 = 40;
 const COLOR_OFFSET_HIGH: u8 = 100;
+const CODE_START: u8 = 0x1b;
+const NUMBER_PREFIX: char = '[';
+const NUMBER_SUFFIX: char = 'm';
+const CODE_END: char = ' ';
 
 pub trait ColorCodec<T>
 where
@@ -85,11 +89,11 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let mut digits = Vec::new();
 
-        if self.bytes.next().unwrap_or(0) != 0x1b {
+        if self.bytes.next().unwrap_or(0) != CODE_START {
             return None;
         }
 
-        if self.bytes.next().unwrap_or(0) as char != '[' {
+        if self.bytes.next().unwrap_or(0) as char != NUMBER_PREFIX {
             return None;
         }
 
@@ -98,7 +102,7 @@ where
                 Some(byte) => {
                     if byte.is_ascii_digit() {
                         digits.push(byte);
-                    } else if byte as char == 'm' {
+                    } else if byte as char == NUMBER_SUFFIX {
                         break;
                     } else {
                         return None;
@@ -110,7 +114,7 @@ where
             }
         }
 
-        if self.bytes.next().unwrap_or(0) as char != ' ' {
+        if self.bytes.next().unwrap_or(0) as char != CODE_END {
             return None;
         }
 
