@@ -1,5 +1,5 @@
+use ansi_color_codec::ColorCodec;
 use clap::Parser;
-use color_code::ColorCodec;
 use ctrlc::set_handler;
 use std::io::{stdin, stdout, Read, Write};
 use std::sync::{
