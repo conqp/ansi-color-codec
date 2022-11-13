@@ -34,7 +34,7 @@ impl ColorCode {
     }
 
     pub fn triplet(&self) -> [bool; 3] {
-        (0..4)
+        (0..3)
             .map(|index| self.byte() & (1 << index) != 0)
             .collect::<Vec<bool>>()
             .try_into()
