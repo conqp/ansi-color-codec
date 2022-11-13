@@ -7,9 +7,7 @@ use std::sync::{
     Arc,
 };
 
-const RESET: &str = "\x1b[0m";
 const STDOUT_WRITE_ERR: &str = "Could not write bytes to STDOUT";
-const STDOUT_FLUSH_ERR: &str = "Could not flush STDOUT";
 
 #[derive(Parser)]
 #[clap(about, author, version)]
@@ -43,7 +41,7 @@ fn decode(bytes: impl Iterator<Item = u8>) {
         stdout().write_all(&[byte]).expect(STDOUT_WRITE_ERR);
     }
 
-    stdout().flush().expect(STDOUT_FLUSH_ERR);
+    stdout().flush().expect("Could not flush STDOUT");
 }
 
 fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
@@ -54,12 +52,8 @@ fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
     }
 
     if clear {
-        stdout()
-            .write_all(RESET.as_bytes())
-            .expect("Could not write clearing code");
+        println!("\x1b[0m");
     }
-
-    stdout().flush().expect(STDOUT_FLUSH_ERR);
 }
 
 fn stdin_while_running(running: Arc<AtomicBool>) -> impl Iterator<Item = u8> {
