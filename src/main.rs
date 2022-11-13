@@ -7,6 +7,9 @@ use std::sync::{
     Arc,
 };
 
+const STDOUT_WRITE_ERR: &str = "Could not write bytes to STDOUT";
+const STDOUT_FLUSH_ERR: &str = "Could not flush STDOUT";
+
 #[derive(Parser)]
 #[clap(about, author, version)]
 struct Args {
@@ -36,19 +39,17 @@ fn main() {
 
 fn decode(bytes: impl Iterator<Item = u8>) {
     for byte in bytes.color_decode() {
-        if stdout().write(&[byte]).is_err() {
-            return;
-        }
+        stdout().write_all(&[byte]).expect(STDOUT_WRITE_ERR);
     }
 
-    stdout().flush().expect("Could not flush STDOUT");
+    stdout().flush().expect(STDOUT_FLUSH_ERR);
 }
 
 fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
     for code in bytes.color_code() {
-        if stdout().write_all(code.to_string().as_bytes()).is_err() {
-            return;
-        }
+        stdout()
+            .write_all(code.to_string().as_bytes())
+            .expect(STDOUT_WRITE_ERR);
     }
 
     if clear {
@@ -56,6 +57,8 @@ fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
             .write_all(RESET.as_bytes())
             .expect("Could not write clearing code");
     }
+
+    stdout().flush().expect(STDOUT_FLUSH_ERR);
 }
 
 fn stdin_while_running(running: Arc<AtomicBool>) -> impl Iterator<Item = u8> {
