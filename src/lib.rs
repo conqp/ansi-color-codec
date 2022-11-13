@@ -17,6 +17,7 @@ type BytesIterator<T> = BitsToBytesIterator<
         fn(ColorCode) -> Box<dyn Iterator<Item = bool>>,
     >,
 >;
+type TripletGenerator = fn(ColorCode) -> Box<dyn Iterator<Item = bool>>;
 
 pub trait ColorCodec<T>
 where
@@ -38,7 +39,7 @@ where
 
     fn color_decode(self) -> BytesIterator<T> {
         self.codes()
-            .flat_map((|code| code.triplets()) as fn(ColorCode) -> Box<dyn Iterator<Item = bool>>)
+            .flat_map((|code| code.triplets()) as TripletGenerator)
             .bytes()
     }
 }
