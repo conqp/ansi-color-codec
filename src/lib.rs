@@ -6,7 +6,7 @@ const COLOR_OFFSET_LOW: u8 = 40;
 const COLOR_OFFSET_HIGH: u8 = 100;
 const OFFSET_THRESHOLD: u8 = 8;
 const CODE_START: u8 = 0x1b;
-const BOM: [u8; 3] = [239, 187, 191];
+const BOM_BYTES: [u8; 5] = [255, 254, 239, 191, 187];
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERM: &str = "Byte stream terminated unexpectedly";
@@ -85,10 +85,10 @@ where
     T: Iterator<Item = u8>,
 {
     fn skip_bom(&mut self) -> Option<u8> {
-        for bom in BOM {
+        loop {
             match self.bytes.next() {
                 Some(byte) => {
-                    if byte == bom {
+                    if BOM_BYTES.contains(&byte) {
                         continue;
                     } else {
                         return Some(byte);
@@ -97,8 +97,6 @@ where
                 None => return None,
             }
         }
-
-        self.bytes.next()
     }
 }
 
