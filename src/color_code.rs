@@ -1,3 +1,5 @@
+use std::array::IntoIter;
+
 const NUMBER_MASK: u8 = 0b1111;
 const COLOR_OFFSET: u8 = 40;
 
@@ -39,8 +41,8 @@ impl ColorCode {
             .unwrap()
     }
 
-    pub fn triplets(&self) -> Box<dyn Iterator<Item = bool>> {
-        Box::new(self.triplet().into_iter())
+    pub fn triplets(&self) -> IntoIter<bool, 3> {
+        self.triplet().into_iter()
     }
 }
 
