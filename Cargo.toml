@@ -1,5 +1,14 @@
 [package]
 name = "color-code"
+authors = ["Richard Neumann <mail@richard-neumann.de>"]
+description = "Encode bytes as ANSI background colors"
+license-file = "LICENSE"
+homepage = "https://github.com/conqp/color-code/"
+repository = "https://github.com/conqp/color-code/"
+readme = "README.md"
+documentation = "https://docs.rs/color-code"
+keywords = [ "ANSI", "color", "encoding"]
+categories = ["command-line-utilities", "encoding"]
 version = "0.2.7"
 edition = "2021"
 
