@@ -129,7 +129,7 @@ where
                         )));
                     }
                 }
-                None => return Some(Err("Byte stream terminated unexpectedly".to_string())),
+                None => return Some(Err(UNEXPECTED_TERM.to_string())),
             }
         }
 
