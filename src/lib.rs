@@ -56,7 +56,7 @@ impl ColorCode {
 
 impl From<u8> for ColorCode {
     fn from(byte: u8) -> Self {
-        if byte <= MASK_LOW {
+        if byte < 8 {
             Self::new(byte + COLOR_OFFSET_LOW)
         } else {
             Self::new(byte + COLOR_OFFSET_HIGH)
