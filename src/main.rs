@@ -39,7 +39,7 @@ fn main() {
 }
 
 fn decode(bytes: impl Iterator<Item = u8>) {
-    for byte in bytes.color_decode() {
+    for byte in bytes.ansi_color_decode() {
         stdout().write_all(&[byte]).expect(STDOUT_WRITE_ERR);
     }
 
@@ -47,7 +47,7 @@ fn decode(bytes: impl Iterator<Item = u8>) {
 }
 
 fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
-    for code in bytes.color_code() {
+    for code in bytes.ansi_color_encode() {
         stdout()
             .write_all(code.to_string().as_bytes())
             .expect(STDOUT_WRITE_ERR);

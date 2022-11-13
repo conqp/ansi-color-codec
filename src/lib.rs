@@ -19,19 +19,19 @@ pub trait ColorCodec<T>
 where
     T: Iterator<Item = u8>,
 {
-    fn color_code(self) -> BytesToColorCodes<T>;
-    fn color_decode(self) -> DecodedColors<T>;
+    fn ansi_color_encode(self) -> BytesToColorCodes<T>;
+    fn ansi_color_decode(self) -> DecodedColors<T>;
 }
 
 impl<T> ColorCodec<T> for T
 where
     T: Iterator<Item = u8>,
 {
-    fn color_code(self) -> BytesToColorCodes<T> {
+    fn ansi_color_encode(self) -> BytesToColorCodes<T> {
         BytesToColorCodes::from(self)
     }
 
-    fn color_decode(self) -> DecodedColors<T> {
+    fn ansi_color_decode(self) -> DecodedColors<T> {
         ColorCodesToBytes::from(
             ColorCodesFromBytes::from(self.skip_while((|item| *item != CODE_START) as ByteFilter))
                 .map((|result| result.unwrap()) as ColorUnwrapper),
