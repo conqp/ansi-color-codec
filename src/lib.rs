@@ -1,4 +1,4 @@
-use std::iter::Map;
+use std::iter::{Map, SkipWhile};
 
 const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
@@ -6,13 +6,14 @@ const COLOR_OFFSET_LOW: u8 = 40;
 const COLOR_OFFSET_HIGH: u8 = 100;
 const OFFSET_THRESHOLD: u8 = 8;
 const CODE_START: u8 = 0x1b;
-const BOM_BYTES: [u8; 5] = [255, 254, 239, 191, 187];
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERM: &str = "Byte stream terminated unexpectedly";
 
+type ByteFilter = fn(&u8) -> bool;
 type ColorUnwrapper = fn(Result<ColorCode, String>) -> ColorCode;
-type DecodedColors<T> = ColorCodesToBytes<Map<ColorCodesFromBytes<T>, ColorUnwrapper>>;
+type DecodedColors<T> =
+    ColorCodesToBytes<Map<ColorCodesFromBytes<SkipWhile<T, ByteFilter>>, ColorUnwrapper>>;
 
 pub trait ColorCodec<T>
 where
@@ -32,7 +33,8 @@ where
 
     fn color_decode(self) -> DecodedColors<T> {
         ColorCodesToBytes::from(
-            ColorCodesFromBytes::from(self).map((|result| result.unwrap()) as ColorUnwrapper),
+            ColorCodesFromBytes::from(self.skip_while((|item| *item != CODE_START) as ByteFilter))
+                .map((|result| result.unwrap()) as ColorUnwrapper),
         )
     }
 }
@@ -80,26 +82,6 @@ where
     bytes: T,
 }
 
-impl<T> ColorCodesFromBytes<T>
-where
-    T: Iterator<Item = u8>,
-{
-    fn skip_bom(&mut self) -> Option<u8> {
-        loop {
-            match self.bytes.next() {
-                Some(byte) => {
-                    if BOM_BYTES.contains(&byte) {
-                        continue;
-                    } else {
-                        return Some(byte);
-                    }
-                }
-                None => return None,
-            }
-        }
-    }
-}
-
 impl<T> From<T> for ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
@@ -118,7 +100,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let mut digits = Vec::new();
 
-        match self.skip_bom() {
+        match self.bytes.next() {
             Some(byte) => {
                 if byte != CODE_START {
                     return Some(Err(format!("Invalid start byte: {}", byte)));
