@@ -1,6 +1,7 @@
 mod bitstream;
 
 use bitstream::{BitsToBytes, BitsToBytesIterator, BytesToBits, TripletIterator, Triplets};
+use std::array::IntoIter;
 use std::iter::{FlatMap, Map};
 
 mod color_code;
@@ -8,14 +9,9 @@ use color_code::{BytesToColorCodes, ColorCode, ColorCodeIterator, ToColor};
 
 type ColorsIterator<'a> =
     Map<TripletIterator<Box<dyn Iterator<Item = bool> + 'a>>, fn(u8) -> String>;
-type BytesIterator<T> = BitsToBytesIterator<
-    FlatMap<
-        ColorCodeIterator<T>,
-        Box<dyn Iterator<Item = bool>>,
-        fn(ColorCode) -> Box<dyn Iterator<Item = bool>>,
-    >,
->;
-type TripletGenerator = fn(ColorCode) -> Box<dyn Iterator<Item = bool>>;
+type TripletGenerator = fn(ColorCode) -> IntoIter<bool, 3>;
+type BytesIterator<T> =
+    BitsToBytesIterator<FlatMap<ColorCodeIterator<T>, IntoIter<bool, 3>, TripletGenerator>>;
 
 pub trait ColorCodec<'a, T>
 where
