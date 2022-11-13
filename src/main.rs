@@ -1,5 +1,5 @@
 use clap::Parser;
-use color_code::{decode, encode};
+use color_code::ColorCodec;
 use ctrlc::set_handler;
 use std::io::Read;
 use std::io::{stdin, stdout, Write};
@@ -27,14 +27,14 @@ fn main() {
     .expect("Error setting Ctrl-C handler");
 
     if args.decode {
-        decode_and_print(bytes)
+        decode(bytes)
     } else {
-        encode_and_print(bytes, !args.no_clear)
+        encode(bytes, !args.no_clear)
     }
 }
 
-fn decode_and_print(bytes: impl Iterator<Item = u8>) {
-    for byte in decode(bytes) {
+fn decode(bytes: impl Iterator<Item = u8>) {
+    for byte in bytes.color_decode() {
         if stdout().write(&[byte]).is_err() {
             return;
         }
@@ -43,8 +43,8 @@ fn decode_and_print(bytes: impl Iterator<Item = u8>) {
     stdout().flush().expect("Could not flush STDOUT");
 }
 
-fn encode_and_print(bytes: impl Iterator<Item = u8>, clear: bool) {
-    for code in encode(bytes) {
+fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
+    for code in bytes.color_code() {
         if stdout().write(code.as_bytes()).is_err() {
             return;
         }

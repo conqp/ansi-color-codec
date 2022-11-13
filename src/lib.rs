@@ -1,19 +1,49 @@
 mod bitstream;
+
 use bitstream::{BitsToBytes, BytesToBits};
+use std::iter::{FlatMap, Map};
 
 mod color_code;
 use color_code::BytesToColorCodes;
 
 mod triplets;
+use crate::bitstream::{BitsToBytesIterator, BytesToBitsIterator};
+use crate::color_code::{ColorCode, ColorCodeIterator};
+use crate::triplets::{Triplet, TripletIterator};
 use triplets::{ToColor, Triplets};
 
-pub fn encode(bytes: impl Iterator<Item = u8>) -> impl Iterator<Item = String> {
-    bytes
-        .bits()
-        .triplets()
-        .map(move |triplet| triplet.to_color())
+type ColorsIterator<T> = Map<TripletIterator<BytesToBitsIterator<T>>, fn(Triplet) -> String>;
+type BytesIterator<T> = BitsToBytesIterator<
+    FlatMap<
+        ColorCodeIterator<T>,
+        Box<dyn Iterator<Item = bool>>,
+        fn(ColorCode) -> Box<dyn Iterator<Item = bool>>,
+    >,
+>;
+
+pub trait ColorCodec<T>
+where
+    T: Iterator<Item = u8>,
+{
+    fn color_code(self) -> ColorsIterator<T>;
+    fn color_decode(self) -> BytesIterator<T>;
 }
 
-pub fn decode(bytes: impl Iterator<Item = u8>) -> impl Iterator<Item = u8> {
-    bytes.codes().flat_map(move |code| code.triplets()).bytes()
+impl<T> ColorCodec<T> for T
+where
+    T: Iterator<Item = u8>,
+{
+    fn color_code(self) -> ColorsIterator<T> {
+        self.bits()
+            .triplets()
+            .map(move |triplet| triplet.to_color())
+    }
+
+    fn color_decode(self) -> BytesIterator<T> {
+        self.codes().flat_map(triplets as fn(ColorCode) -> Box<dyn Iterator<Item = bool>>).bytes()
+    }
+}
+
+fn triplets(code: ColorCode) ->  Box<dyn Iterator<Item = bool>> {
+    code.triplets()
 }
