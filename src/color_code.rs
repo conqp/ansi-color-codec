@@ -32,8 +32,11 @@ impl ColorCode {
     }
 
     pub fn triplet(&self) -> [bool; 3] {
-        let byte = self.byte();
-        [byte & 0b001 != 0, byte & 0b010 != 0, byte & 0b100 != 0]
+        (0..4)
+            .map(|index| self.byte() & (1 << index) != 0)
+            .collect::<Vec<bool>>()
+            .try_into()
+            .unwrap()
     }
 
     pub fn triplets(&self) -> Box<dyn Iterator<Item = bool>> {
