@@ -1,11 +1,10 @@
 mod bitstream;
+mod color_code;
 
 use bitstream::{BitsToBytes, BitsToBytesIterator, BytesToBits, TripletIterator, Triplets};
+use color_code::{BytesToColorCodes, ColorCode, ColorCodeIterator, ToColor};
 use std::array::IntoIter;
 use std::iter::{FlatMap, Map};
-
-mod color_code;
-use color_code::{BytesToColorCodes, ColorCode, ColorCodeIterator, ToColor};
 
 type ColorsIterator<'a> =
     Map<TripletIterator<Box<dyn Iterator<Item = bool> + 'a>>, fn(u8) -> String>;
