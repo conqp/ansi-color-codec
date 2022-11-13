@@ -40,10 +40,8 @@ where
     }
 
     fn color_decode(self) -> BytesIterator<T> {
-        self.codes().flat_map(triplets as fn(ColorCode) -> Box<dyn Iterator<Item = bool>>).bytes()
+        self.codes()
+            .flat_map((|code| code.triplets()) as fn(ColorCode) -> Box<dyn Iterator<Item = bool>>)
+            .bytes()
     }
-}
-
-fn triplets(code: ColorCode) ->  Box<dyn Iterator<Item = bool>> {
-    code.triplets()
 }
