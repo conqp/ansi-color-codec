@@ -46,13 +46,15 @@ fn decode(bytes: impl Iterator<Item = u8>) {
 
 fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
     for code in bytes.color_code() {
-        if stdout().write(code.to_string().as_bytes()).is_err() {
+        if stdout().write_all(code.to_string().as_bytes()).is_err() {
             return;
         }
     }
 
     if clear {
-        println!("\x1b[0m");
+        stdout()
+            .write_all("\x1b[0m".as_bytes())
+            .expect("Could not write clearing code");
     }
 }
 
