@@ -11,6 +11,10 @@ keywords = [ "ANSI", "color", "encoding"]
 categories = ["command-line-utilities", "encoding"]
 version = "0.2.9"
 edition = "2021"
+exclude = [
+    ".gitignore",
+    "input.txt",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
