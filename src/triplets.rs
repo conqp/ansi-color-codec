@@ -16,16 +16,6 @@ where
     }
 }
 
-pub trait ToColor {
-    fn to_color(self) -> String;
-}
-
-impl ToColor for Triplet {
-    fn to_color(self) -> String {
-        format!("\x1b[{}m ", self + 40)
-    }
-}
-
 #[derive(Debug, Eq, PartialEq)]
 pub struct TripletIterator<T>
 where

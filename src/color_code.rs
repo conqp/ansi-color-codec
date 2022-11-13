@@ -1,4 +1,5 @@
 const NUMBER_MASK: u8 = 0b1111;
+const COLOR_OFFSET: u8 = 40;
 
 pub trait BytesToColorCodes<T>
 where
@@ -27,7 +28,7 @@ impl ColorCode {
     }
 
     pub fn byte(&self) -> u8 {
-        self.number - 40
+        self.number - COLOR_OFFSET
     }
 
     pub fn triplet(&self) -> [bool; 3] {
@@ -37,6 +38,16 @@ impl ColorCode {
 
     pub fn triplets(&self) -> Box<dyn Iterator<Item = bool>> {
         Box::new(self.triplet().into_iter())
+    }
+}
+
+pub trait ToColor {
+    fn to_color(self) -> String;
+}
+
+impl ToColor for u8 {
+    fn to_color(self) -> String {
+        format!("\x1b[{}m ", self + COLOR_OFFSET)
     }
 }
 
