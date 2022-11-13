@@ -1,3 +1,5 @@
+use std::iter::Map;
+
 const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
 const COLOR_OFFSET_LOW: u8 = 40;
@@ -6,13 +8,17 @@ const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const CODE_END: char = ' ';
+const UNEXPECTED_TERM: &str = "Byte stream terminated unexpectedly";
+
+type ColorUnwrapper = fn(Result<ColorCode, String>) -> ColorCode;
+type DecodedColors<T> = ColorCodesToBytes<Map<ColorCodesFromBytes<T>, ColorUnwrapper>>;
 
 pub trait ColorCodec<T>
 where
     T: Iterator<Item = u8>,
 {
     fn color_code(self) -> BytesToColorCodes<T>;
-    fn color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>>;
+    fn color_decode(self) -> DecodedColors<T>;
 }
 
 impl<T> ColorCodec<T> for T
@@ -23,8 +29,10 @@ where
         BytesToColorCodes::from(self)
     }
 
-    fn color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>> {
-        ColorCodesToBytes::from(ColorCodesFromBytes::from(self))
+    fn color_decode(self) -> DecodedColors<T> {
+        ColorCodesToBytes::from(
+            ColorCodesFromBytes::from(self).map((|result| result.unwrap()) as ColorUnwrapper),
+        )
     }
 }
 
@@ -84,17 +92,27 @@ impl<T> Iterator for ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
 {
-    type Item = ColorCode;
+    type Item = Result<ColorCode, String>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut digits = Vec::new();
 
-        if self.bytes.next().unwrap_or(0) != CODE_START {
-            return None;
+        match self.bytes.next() {
+            Some(byte) => {
+                if byte != CODE_START {
+                    return Some(Err(format!("Invalid start byte: {}", byte)));
+                }
+            }
+            None => return Some(Err(UNEXPECTED_TERM.to_string())),
         }
 
-        if self.bytes.next().unwrap_or(0) as char != NUMBER_PREFIX {
-            return None;
+        match self.bytes.next() {
+            Some(byte) => {
+                if byte as char != NUMBER_PREFIX {
+                    return Some(Err(format!("Invalid number prefix: {}", byte)));
+                }
+            }
+            None => return Some(Err(UNEXPECTED_TERM.to_string())),
         }
 
         loop {
@@ -105,17 +123,23 @@ where
                     } else if byte as char == NUMBER_SUFFIX {
                         break;
                     } else {
-                        return None;
+                        return Some(Err(format!(
+                            "Unexpected byte while parsing digits: {}",
+                            byte
+                        )));
                     }
                 }
-                None => {
-                    return None;
-                }
+                None => return Some(Err("Byte stream terminated unexpectedly".to_string())),
             }
         }
 
-        if self.bytes.next().unwrap_or(0) as char != CODE_END {
-            return None;
+        match self.bytes.next() {
+            Some(byte) => {
+                if byte as char != CODE_END {
+                    return Some(Err(format!("Unexpected termination byte: {}", byte)));
+                }
+            }
+            None => return Some(Err(UNEXPECTED_TERM.to_string())),
         }
 
         match digits
@@ -126,7 +150,7 @@ where
             .sum()
         {
             0 => None,
-            sum => Some(ColorCode::new(sum)),
+            sum => Some(Ok(ColorCode::new(sum))),
         }
     }
 }
