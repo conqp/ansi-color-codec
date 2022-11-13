@@ -1,5 +1,5 @@
 use clap::Parser;
-use color_code::{ColorCodec, CLEARING_CODE};
+use color_code::{ColorCodec, RESET};
 use ctrlc::set_handler;
 use std::io::{stdin, stdout, Read, Write};
 use std::sync::{
@@ -53,7 +53,7 @@ fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
 
     if clear {
         stdout()
-            .write_all(CLEARING_CODE.as_bytes())
+            .write_all(RESET.as_bytes())
             .expect("Could not write clearing code");
     }
 }
