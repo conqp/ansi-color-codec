@@ -1,7 +1,7 @@
 # ansi-color-codec
 Encode arbitrary byte sequences with ANSI background colors.
 
-[Showcase](https://user-images.githubusercontent.com/3766192/201550552-aafad8df-9935-4cc8-a1e5-05975c7b3537.webm)
+[ANSI color codec showcase.webm](https://user-images.githubusercontent.com/3766192/201550635-61088571-9f29-4ae1-a35d-efd4f81ae8da.webm)
 
 ## Usage
 You can use the program as a library or as a command line utility.
