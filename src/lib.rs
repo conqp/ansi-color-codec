@@ -103,7 +103,7 @@ where
                     return Some(Err(format!("Invalid start byte: {}", byte)));
                 }
             }
-            None => return Some(Err(UNEXPECTED_TERM.to_string())),
+            None => return None,
         }
 
         match self.bytes.next() {
