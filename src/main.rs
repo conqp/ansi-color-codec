@@ -1,5 +1,5 @@
 use clap::Parser;
-use color_code::{ColorCodec, RESET};
+use color_code::ColorCodec;
 use ctrlc::set_handler;
 use std::io::{stdin, stdout, Read, Write};
 use std::sync::{
@@ -7,6 +7,7 @@ use std::sync::{
     Arc,
 };
 
+const RESET: &str = "\x1b[0m";
 const STDOUT_WRITE_ERR: &str = "Could not write bytes to STDOUT";
 const STDOUT_FLUSH_ERR: &str = "Could not flush STDOUT";
 

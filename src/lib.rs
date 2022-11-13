@@ -10,8 +10,6 @@ const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERM: &str = "Byte stream terminated unexpectedly";
 
-pub const RESET: &str = "\x1b[0m";
-
 type ByteFilter = fn(&u8) -> bool;
 type ColorUnwrapper = fn(Result<ColorCode, String>) -> ColorCode;
 type DecodedColors<T> =
