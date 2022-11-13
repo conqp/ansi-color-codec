@@ -6,6 +6,7 @@ const COLOR_OFFSET_LOW: u8 = 40;
 const COLOR_OFFSET_HIGH: u8 = 100;
 const OFFSET_THRESHOLD: u8 = 8;
 const CODE_START: u8 = 0x1b;
+const BOM: [u8; 3] = [239, 187, 191];
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERM: &str = "Byte stream terminated unexpectedly";
@@ -79,6 +80,28 @@ where
     bytes: T,
 }
 
+impl<T> ColorCodesFromBytes<T>
+where
+    T: Iterator<Item = u8>,
+{
+    fn skip_bom(&mut self) -> Option<u8> {
+        for bom in BOM {
+            match self.bytes.next() {
+                Some(byte) => {
+                    if byte == bom {
+                        continue;
+                    } else {
+                        return Some(byte);
+                    }
+                }
+                None => return None,
+            }
+        }
+
+        self.bytes.next()
+    }
+}
+
 impl<T> From<T> for ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
@@ -97,7 +120,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let mut digits = Vec::new();
 
-        match self.bytes.next() {
+        match self.skip_bom() {
             Some(byte) => {
                 if byte != CODE_START {
                     return Some(Err(format!("Invalid start byte: {}", byte)));
