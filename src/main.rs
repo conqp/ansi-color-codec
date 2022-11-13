@@ -1,10 +1,11 @@
 use clap::Parser;
 use color_code::ColorCodec;
 use ctrlc::set_handler;
-use std::io::Read;
-use std::io::{stdin, stdout, Write};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::io::{stdin, stdout, Read, Write};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 
 #[derive(Parser)]
 #[clap(about, author, version)]
