@@ -7,7 +7,6 @@ const COLOR_OFFSET_HIGH: u8 = 100;
 const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
-const CODE_END: char = ' ';
 const UNEXPECTED_TERM: &str = "Byte stream terminated unexpectedly";
 
 type ColorUnwrapper = fn(Result<ColorCode, String>) -> ColorCode;
@@ -133,14 +132,7 @@ where
             }
         }
 
-        match self.bytes.next() {
-            Some(byte) => {
-                if byte as char != CODE_END {
-                    return Some(Err(format!("Unexpected termination byte: {}", byte)));
-                }
-            }
-            None => return Some(Err(UNEXPECTED_TERM.to_string())),
-        }
+        self.bytes.next();
 
         match digits
             .iter()
