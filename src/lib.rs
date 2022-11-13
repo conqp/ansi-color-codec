@@ -4,6 +4,7 @@ const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
 const COLOR_OFFSET_LOW: u8 = 40;
 const COLOR_OFFSET_HIGH: u8 = 100;
+const OFFSET_THRESHOLD: u8 = 8;
 const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
@@ -56,7 +57,7 @@ impl ColorCode {
 
 impl From<u8> for ColorCode {
     fn from(byte: u8) -> Self {
-        if byte < 8 {
+        if byte < OFFSET_THRESHOLD {
             Self::new(byte + COLOR_OFFSET_LOW)
         } else {
             Self::new(byte + COLOR_OFFSET_HIGH)
