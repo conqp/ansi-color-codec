@@ -1,5 +1,3 @@
-pub type Triplet = u8;
-
 pub trait BytesToBits<'a> {
     fn bits(self) -> Box<dyn Iterator<Item = bool> + 'a>;
 }
@@ -78,7 +76,7 @@ where
 
 pub trait Triplets<T>
 where
-    T: Iterator<Item = Triplet>,
+    T: Iterator<Item = u8>,
 {
     fn triplets(self) -> T;
 }
@@ -113,7 +111,7 @@ impl<T> Iterator for TripletIterator<T>
 where
     T: Iterator<Item = bool>,
 {
-    type Item = Triplet;
+    type Item = u8;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut exhausted = false;
@@ -126,7 +124,7 @@ where
                     break;
                 }
                 Some(bit) => {
-                    triplet += (bit as Triplet) << index;
+                    triplet += (bit as u8) << index;
                 }
             }
         }
