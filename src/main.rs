@@ -45,7 +45,7 @@ fn decode(bytes: impl Iterator<Item = u8>) {
 
 fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
     for code in bytes.color_code() {
-        if stdout().write(code.as_bytes()).is_err() {
+        if stdout().write(code.to_string().as_bytes()).is_err() {
             return;
         }
     }
