@@ -53,6 +53,8 @@ fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
 
     if clear {
         println!("\x1b[0m");
+    } else {
+        println!();
     }
 }
 
