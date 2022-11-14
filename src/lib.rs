@@ -1,4 +1,4 @@
-use std::iter::{Map, SkipWhile};
+use std::iter::Map;
 
 const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
@@ -12,11 +12,10 @@ const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
+const UTF_8_BOM: [u8; 3] = [239, 187, 191];
 
-type ByteFilter = fn(&u8) -> bool;
 type ColorUnwrapper = fn(Result<ColorCode, String>) -> ColorCode;
-type DecodedColors<T> =
-    ColorCodesToBytes<Map<ColorCodesFromBytes<SkipWhile<T, ByteFilter>>, ColorUnwrapper>>;
+type DecodedColors<T> = ColorCodesToBytes<Map<ColorCodesFromBytes<T>, ColorUnwrapper>>;
 
 pub trait ColorCodec<T>
 where
@@ -36,8 +35,7 @@ where
 
     fn ansi_color_decode(self) -> DecodedColors<T> {
         ColorCodesToBytes::from(
-            ColorCodesFromBytes::from(self.skip_while((|item| *item != CODE_START) as ByteFilter))
-                .map((|result| result.unwrap()) as ColorUnwrapper),
+            ColorCodesFromBytes::from(self).map((|result| result.unwrap()) as ColorUnwrapper),
         )
     }
 }
@@ -89,6 +87,26 @@ where
     bytes: T,
 }
 
+impl<T> ColorCodesFromBytes<T>
+where
+    T: Iterator<Item = u8>,
+{
+    fn skip_utf_8_bom(&mut self) -> Option<u8> {
+        for bom in UTF_8_BOM {
+            match self.bytes.next() {
+                Some(byte) => {
+                    if byte != bom {
+                        return Some(byte);
+                    }
+                }
+                None => return None,
+            }
+        }
+
+        self.bytes.next()
+    }
+}
+
 impl<T> From<T> for ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
@@ -107,7 +125,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let mut digits = Vec::new();
 
-        match self.bytes.next() {
+        match self.skip_utf_8_bom() {
             Some(byte) => {
                 if byte != CODE_START {
                     return Some(Err(format!("Invalid start byte: {}", byte)));
