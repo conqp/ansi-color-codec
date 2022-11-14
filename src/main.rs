@@ -60,5 +60,5 @@ fn stdin_while_running(running: Arc<AtomicBool>) -> impl Iterator<Item = u8> {
     stdin()
         .bytes()
         .take_while(move |byte| byte.is_ok() && running.load(Ordering::SeqCst))
-        .map(|result| result.unwrap())
+        .map(|byte| byte.unwrap())
 }
