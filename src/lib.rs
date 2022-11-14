@@ -7,6 +7,7 @@ const COLOR_OFFSET_LOW: u8 = 40;
 const COLOR_OFFSET_HIGH: u8 = 100;
 const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
 const COLOR_CODE_MAX: u8 = MASK_LOW;
+const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
 const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
@@ -55,7 +56,7 @@ impl ColorCode {
         if self.number < COLOR_OFFSET_HIGH {
             self.number - COLOR_OFFSET_LOW
         } else {
-            self.number - COLOR_OFFSET_HIGH + 8
+            self.number - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT
         }
     }
 }
