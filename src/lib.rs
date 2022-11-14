@@ -12,7 +12,6 @@ const NUMBER_BASE: u8 = 10;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
-const UTF_8_BOM: [u8; 3] = [239, 187, 191];
 
 pub trait ColorCodec<T>
 where
@@ -83,36 +82,6 @@ where
     utf_8_bom_processed: bool,
 }
 
-impl<T> ColorCodesFromBytes<T>
-where
-    T: Iterator<Item = u8>,
-{
-    fn skip_utf_8_bom_once(&mut self) -> Option<u8> {
-        if self.utf_8_bom_processed {
-            self.bytes.next()
-        } else {
-            self.utf_8_bom_processed = true;
-            self.skip_utf_8_bom()
-        }
-    }
-
-    fn skip_utf_8_bom(&mut self) -> Option<u8> {
-        for bom in UTF_8_BOM {
-            match self.bytes.next() {
-                Some(byte) => {
-                    if byte != bom {
-                        self.utf_8_bom_processed = true;
-                        return Some(byte);
-                    }
-                }
-                None => return None,
-            }
-        }
-
-        self.bytes.next()
-    }
-}
-
 impl<T> From<T> for ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
@@ -134,7 +103,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let mut digits = Vec::new();
 
-        match self.skip_utf_8_bom_once() {
+        match self.bytes.next() {
             Some(byte) => {
                 if byte != CODE_START {
                     return Some(Err(format!("Invalid start byte: {}", byte)));
