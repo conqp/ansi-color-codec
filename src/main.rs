@@ -44,7 +44,7 @@ fn decode(bytes: impl Iterator<Item = u8>) {
                 stdout().write_all(&[byte]).expect(STDOUT_WRITE_ERR);
             }
             Err(msg) => {
-                eprintln!("Error while decoding: {}", msg);
+                eprintln!("{}", msg);
                 exit(1);
             }
         }
