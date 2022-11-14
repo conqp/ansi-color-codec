@@ -8,7 +8,7 @@ const OFFSET_THRESHOLD: u8 = 8;
 const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
-const UNEXPECTED_TERM: &str = "Byte stream terminated unexpectedly";
+const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
 
 type ByteFilter = fn(&u8) -> bool;
 type ColorUnwrapper = fn(Result<ColorCode, String>) -> ColorCode;
@@ -115,7 +115,7 @@ where
                     return Some(Err(format!("Invalid number prefix: {}", byte)));
                 }
             }
-            None => return Some(Err(UNEXPECTED_TERM.to_string())),
+            None => return Some(Err(UNEXPECTED_TERMINATION_MSG.to_string())),
         }
 
         loop {
@@ -132,7 +132,7 @@ where
                         )));
                     }
                 }
-                None => return Some(Err(UNEXPECTED_TERM.to_string())),
+                None => return Some(Err(UNEXPECTED_TERMINATION_MSG.to_string())),
             }
         }
 
