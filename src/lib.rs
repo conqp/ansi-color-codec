@@ -80,17 +80,28 @@ where
     T: Iterator<Item = u8>,
 {
     bytes: T,
+    utf_8_bom_processed: bool,
 }
 
 impl<T> ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
 {
+    fn skip_utf_8_bom_once(&mut self) -> Option<u8> {
+        if self.utf_8_bom_processed {
+            self.bytes.next()
+        } else {
+            self.utf_8_bom_processed = true;
+            self.skip_utf_8_bom()
+        }
+    }
+
     fn skip_utf_8_bom(&mut self) -> Option<u8> {
         for bom in UTF_8_BOM {
             match self.bytes.next() {
                 Some(byte) => {
                     if byte != bom {
+                        self.utf_8_bom_processed = true;
                         return Some(byte);
                     }
                 }
@@ -107,7 +118,10 @@ where
     T: Iterator<Item = u8>,
 {
     fn from(bytes: T) -> Self {
-        Self { bytes }
+        Self {
+            bytes,
+            utf_8_bom_processed: false,
+        }
     }
 }
 
@@ -120,7 +134,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let mut digits = Vec::new();
 
-        match self.skip_utf_8_bom() {
+        match self.skip_utf_8_bom_once() {
             Some(byte) => {
                 if byte != CODE_START {
                     return Some(Err(format!("Invalid start byte: {}", byte)));
