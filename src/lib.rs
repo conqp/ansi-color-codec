@@ -10,6 +10,7 @@ const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
 const COLOR_CODE_MAX: u8 = MASK_LOW;
 const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
 const CODE_START: u8 = 0x1b;
+const NUMBER_BASE: u8 = 10;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
@@ -168,7 +169,7 @@ where
             .iter()
             .rev()
             .enumerate()
-            .map(|(index, digit)| (digit & MASK_LOW) * 10_u8.pow(index as u32))
+            .map(|(index, digit)| (digit & MASK_LOW) * NUMBER_BASE.pow(index as u32))
             .sum()
         {
             0 => None,
