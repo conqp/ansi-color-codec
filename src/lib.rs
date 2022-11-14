@@ -2,9 +2,11 @@ use std::iter::{Map, SkipWhile};
 
 const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
+const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 const COLOR_OFFSET_LOW: u8 = 40;
 const COLOR_OFFSET_HIGH: u8 = 100;
-const OFFSET_THRESHOLD: u8 = 8;
+const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
+const COLOR_CODE_MAX: u8 = MASK_LOW;
 const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
@@ -49,21 +51,25 @@ impl ColorCode {
         Self { number }
     }
 
-    pub fn byte(&self) -> u8 {
+    pub fn normalized(&self) -> u8 {
         if self.number < COLOR_OFFSET_HIGH {
             self.number - COLOR_OFFSET_LOW
         } else {
-            self.number - COLOR_OFFSET_HIGH
+            self.number - COLOR_OFFSET_HIGH + 8
         }
     }
 }
 
-impl From<u8> for ColorCode {
-    fn from(byte: u8) -> Self {
-        if byte < OFFSET_THRESHOLD {
-            Self::new(byte + COLOR_OFFSET_LOW)
+impl TryFrom<u8> for ColorCode {
+    type Error = String;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        if value <= COLOR_CODE_LOW_MAX {
+            Ok(Self::new(value + COLOR_OFFSET_LOW))
+        } else if value <= COLOR_CODE_MAX {
+            Ok(Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH))
         } else {
-            Self::new(byte + COLOR_OFFSET_HIGH)
+            Err(format!("Value out of bounds for color code: {}", value))
         }
     }
 }
@@ -177,8 +183,8 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         match self.codes.next() {
             Some(high) => match self.codes.next() {
-                Some(low) => Some((high.byte() << 4) + low.byte()),
-                None => Some(high.byte() << 4),
+                Some(low) => Some((high.normalized() << 4) + low.normalized()),
+                None => Some(high.normalized() << 4),
             },
             None => None,
         }
@@ -216,12 +222,12 @@ where
         match self.current {
             Some(byte) => {
                 self.current = None;
-                Some(ColorCode::from(byte & MASK_LOW))
+                Some(ColorCode::try_from(byte & MASK_LOW).unwrap())
             }
             None => match self.bytes.next() {
                 Some(byte) => {
                     self.current = Some(byte);
-                    Some(ColorCode::from((byte & MASK_HIGH) >> 4))
+                    Some(ColorCode::try_from((byte & MASK_HIGH) >> 4).unwrap())
                 }
                 None => None,
             },
