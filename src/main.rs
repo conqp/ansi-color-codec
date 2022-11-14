@@ -8,7 +8,6 @@ use std::sync::{
 };
 
 const STDOUT_WRITE_ERR: &str = "Could not write bytes to STDOUT";
-const UTF_16_BOM: [u8; 3] = [239, 187, 191];
 
 #[derive(Parser)]
 #[clap(about, author, version)]
@@ -18,15 +17,12 @@ struct Args {
 
     #[clap(short, long, name = "no-clear")]
     pub no_clear: bool,
-
-    #[clap(short, long, name = "skip-bom")]
-    pub skip_bom: bool,
 }
 
 fn main() {
     let args = Args::parse();
     let running = Arc::new(AtomicBool::new(true));
-    let bytes = stream_stdin(running.clone(), args.skip_bom);
+    let bytes = stream_stdin(running.clone());
 
     set_handler(move || {
         running.store(false, Ordering::SeqCst);
@@ -60,10 +56,9 @@ fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
     }
 }
 
-fn stream_stdin(running: Arc<AtomicBool>, skip_bom: bool) -> impl Iterator<Item = u8> {
+fn stream_stdin(running: Arc<AtomicBool>) -> impl Iterator<Item = u8> {
     stdin()
         .bytes()
         .take_while(move |byte| byte.is_ok() && running.load(Ordering::SeqCst))
         .map(|byte| byte.unwrap())
-        .skip_while(move |byte| skip_bom && UTF_16_BOM.contains(byte))
 }
