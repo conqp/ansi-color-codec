@@ -26,7 +26,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
     let running = Arc::new(AtomicBool::new(true));
-    let bytes = stdin_while_running(running.clone(), args.skip_bom);
+    let bytes = stream_stdin(running.clone(), args.skip_bom);
 
     set_handler(move || {
         running.store(false, Ordering::SeqCst);
@@ -60,7 +60,7 @@ fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
     }
 }
 
-fn stdin_while_running(running: Arc<AtomicBool>, skip_bom: bool) -> impl Iterator<Item = u8> {
+fn stream_stdin(running: Arc<AtomicBool>, skip_bom: bool) -> impl Iterator<Item = u8> {
     stdin()
         .bytes()
         .take_while(move |byte| byte.is_ok() && running.load(Ordering::SeqCst))
