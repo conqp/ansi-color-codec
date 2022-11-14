@@ -2,6 +2,7 @@ use std::iter::Map;
 
 const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
+const MASK_SIZE: u8 = 4;
 const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 const COLOR_OFFSET_LOW: u8 = 40;
 const COLOR_OFFSET_HIGH: u8 = 100;
@@ -202,8 +203,8 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         match self.codes.next() {
             Some(high) => match self.codes.next() {
-                Some(low) => Some((high.normalized() << 4) + low.normalized()),
-                None => Some(high.normalized() << 4),
+                Some(low) => Some((high.normalized() << MASK_SIZE) + low.normalized()),
+                None => Some(high.normalized() << MASK_SIZE),
             },
             None => None,
         }
@@ -246,7 +247,7 @@ where
             None => match self.bytes.next() {
                 Some(byte) => {
                     self.current = Some(byte);
-                    Some(ColorCode::try_from((byte & MASK_HIGH) >> 4).unwrap())
+                    Some(ColorCode::try_from((byte & MASK_HIGH) >> MASK_SIZE).unwrap())
                 }
                 None => None,
             },
