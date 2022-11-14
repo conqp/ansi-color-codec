@@ -2,6 +2,7 @@ use ansi_color_codec::ColorCodec;
 use clap::Parser;
 use ctrlc::set_handler;
 use std::io::{stdin, stdout, Read, Write};
+use std::process::exit;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
@@ -37,11 +38,19 @@ fn main() {
 }
 
 fn decode(bytes: impl Iterator<Item = u8>) {
-    for byte in bytes.ansi_color_decode() {
-        stdout().write_all(&[byte]).expect(STDOUT_WRITE_ERR);
+    for result in bytes.ansi_color_decode() {
+        match result {
+            Ok(byte) => {
+                stdout().write_all(&[byte]).expect(STDOUT_WRITE_ERR);
+            }
+            Err(msg) => {
+                eprintln!("Error while decoding: {}", msg);
+                exit(1);
+            }
+        }
     }
 
-    stdout().flush().expect("Could not flush STDOUT");
+    stdout().flush().expect("Could not flush STDOUT")
 }
 
 fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {

@@ -1,5 +1,3 @@
-use std::iter::Map;
-
 const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
 const MASK_SIZE: u8 = 4;
@@ -16,15 +14,12 @@ const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
 const UTF_8_BOM: [u8; 3] = [239, 187, 191];
 
-type ColorUnwrapper = fn(Result<ColorCode, String>) -> ColorCode;
-type DecodedColors<T> = ColorCodesToBytes<Map<ColorCodesFromBytes<T>, ColorUnwrapper>>;
-
 pub trait ColorCodec<T>
 where
     T: Iterator<Item = u8>,
 {
     fn ansi_color_encode(self) -> BytesToColorCodes<T>;
-    fn ansi_color_decode(self) -> DecodedColors<T>;
+    fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>>;
 }
 
 impl<T> ColorCodec<T> for T
@@ -35,10 +30,8 @@ where
         BytesToColorCodes::from(self)
     }
 
-    fn ansi_color_decode(self) -> DecodedColors<T> {
-        ColorCodesToBytes::from(
-            ColorCodesFromBytes::from(self).map((|result| result.unwrap()) as ColorUnwrapper),
-        )
+    fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>> {
+        ColorCodesToBytes::from(ColorCodesFromBytes::from(self))
     }
 }
 
@@ -181,14 +174,14 @@ where
 #[derive(Debug, Eq, PartialEq)]
 pub struct ColorCodesToBytes<T>
 where
-    T: Iterator<Item = ColorCode>,
+    T: Iterator<Item = Result<ColorCode, String>>,
 {
     codes: T,
 }
 
 impl<T> From<T> for ColorCodesToBytes<T>
 where
-    T: Iterator<Item = ColorCode>,
+    T: Iterator<Item = Result<ColorCode, String>>,
 {
     fn from(codes: T) -> Self {
         Self { codes }
@@ -197,15 +190,21 @@ where
 
 impl<T> Iterator for ColorCodesToBytes<T>
 where
-    T: Iterator<Item = ColorCode>,
+    T: Iterator<Item = Result<ColorCode, String>>,
 {
-    type Item = u8;
+    type Item = Result<u8, String>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.codes.next() {
-            Some(high) => match self.codes.next() {
-                Some(low) => Some((high.normalized() << MASK_SIZE) + low.normalized()),
-                None => Some(high.normalized() << MASK_SIZE),
+            Some(high) => match high {
+                Ok(high) => match self.codes.next() {
+                    Some(low) => match low {
+                        Ok(low) => Some(Ok((high.normalized() << MASK_SIZE) + low.normalized())),
+                        Err(msg) => Some(Err(msg)),
+                    },
+                    None => Some(Ok(high.normalized() << MASK_SIZE)),
+                },
+                Err(msg) => Some(Err(msg)),
             },
             None => None,
         }
