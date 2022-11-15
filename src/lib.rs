@@ -8,6 +8,7 @@ const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
 const COLOR_CODE_MAX: u8 = MASK_LOW;
 const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
 const COLOR_CODE_BASE: u8 = 10;
+const MAX_DIGITS: u8 = 3;
 const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
@@ -87,6 +88,76 @@ where
     bytes: T,
 }
 
+impl<T> ColorCodesFromBytes<T>
+where
+    T: Iterator<Item = u8>,
+{
+    fn process_header(&mut self) -> Option<Result<(), String>> {
+        match self.bytes.next() {
+            Some(byte) => {
+                if byte == CODE_START {
+                    match self.bytes.next() {
+                        Some(byte) => {
+                            if byte as char == NUMBER_PREFIX {
+                                Some(Ok(()))
+                            } else {
+                                Some(Err(format!("Invalid number prefix: {}", byte)))
+                            }
+                        }
+                        None => Some(Err(UNEXPECTED_TERMINATION_MSG.to_string())),
+                    }
+                } else {
+                    Some(Err(format!("Invalid start byte: {}", byte)))
+                }
+            }
+            None => None,
+        }
+    }
+
+    fn read_digits(&mut self) -> Result<Vec<u8>, String> {
+        let mut digits = Vec::new();
+
+        for _ in 0..MAX_DIGITS {
+            match self.bytes.next() {
+                Some(byte) => {
+                    if byte.is_ascii_digit() {
+                        digits.push(byte & MASK_LOW);
+                    } else if byte as char == NUMBER_SUFFIX {
+                        return if digits.is_empty() {
+                            Err("Expected at least one digit".to_string())
+                        } else {
+                            Ok(digits)
+                        };
+                    } else {
+                        return Err(format!("Unexpected byte while parsing digits: {}", byte));
+                    }
+                }
+                None => return Err(UNEXPECTED_TERMINATION_MSG.to_string()),
+            }
+        }
+
+        match self.bytes.next() {
+            Some(byte) => {
+                if byte as char == NUMBER_SUFFIX {
+                    Ok(digits)
+                } else {
+                    Err(format!(
+                        "Expected number suffix \"{}\" but found \"{}\"",
+                        NUMBER_SUFFIX, byte
+                    ))
+                }
+            }
+            None => Err(UNEXPECTED_TERMINATION_MSG.to_string()),
+        }
+    }
+
+    fn read_digits_and_skip_tail(&mut self) -> Result<Vec<u8>, String> {
+        let digits = self.read_digits()?;
+        self.bytes.next();
+        Ok(digits)
+    }
+}
+
 impl<T> From<T> for ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
@@ -103,55 +174,22 @@ where
     type Item = Result<ColorCode, String>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut base_10_digits = Vec::new();
-
-        match self.bytes.next() {
-            Some(byte) => {
-                if byte != CODE_START {
-                    return Some(Err(format!("Invalid start byte: {}", byte)));
-                }
-            }
-            None => return None,
+        if let Err(msg) = self.process_header()? {
+            return Some(Err(msg));
         }
 
-        match self.bytes.next() {
-            Some(byte) => {
-                if byte as char != NUMBER_PREFIX {
-                    return Some(Err(format!("Invalid number prefix: {}", byte)));
-                }
-            }
-            None => return Some(Err(UNEXPECTED_TERMINATION_MSG.to_string())),
-        }
-
-        loop {
-            match self.bytes.next() {
-                Some(byte) => {
-                    if byte.is_ascii_digit() {
-                        base_10_digits.push(byte & MASK_LOW);
-                    } else if byte as char == NUMBER_SUFFIX {
-                        break;
+        match self.read_digits_and_skip_tail() {
+            Ok(digits) => match checked_number_from_digits(&digits, COLOR_CODE_BASE) {
+                Ok(sum) => {
+                    if sum == 0 {
+                        None
                     } else {
-                        return Some(Err(format!(
-                            "Unexpected byte while parsing digits: {}",
-                            byte
-                        )));
+                        Some(ColorCode::new(sum))
                     }
                 }
-                None => return Some(Err(UNEXPECTED_TERMINATION_MSG.to_string())),
-            }
-        }
-
-        self.bytes.next();
-
-        match checked_number_from_digits(&base_10_digits, COLOR_CODE_BASE) {
-            Ok(sum) => {
-                if sum == 0 {
-                    None
-                } else {
-                    Some(ColorCode::new(sum))
-                }
-            }
-            Err(msg) => Some(Err(format!("{} while parsing color code", msg))),
+                Err(msg) => Some(Err(format!("{} while parsing color code", msg))),
+            },
+            Err(msg) => Some(Err(msg)),
         }
     }
 }
