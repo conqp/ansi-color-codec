@@ -129,7 +129,7 @@ where
                             Ok(digits)
                         };
                     } else {
-                        return Err(format!("Unexpected byte while parsing digits: {}", byte));
+                        return Err(format!("Encountered Unexpected byte \"{}\"", byte));
                     }
                 }
                 None => return Err(UNEXPECTED_TERMINATION_MSG.to_string()),
@@ -151,10 +151,10 @@ where
         }
     }
 
-    fn read_digits_and_skip_tail(&mut self) -> Result<Vec<u8>, String> {
+    fn parse_color_code(&mut self) -> Result<u8, String> {
         let digits = self.read_digits()?;
         self.bytes.next();
-        Ok(digits)
+        checked_number_from_digits(&digits, COLOR_CODE_BASE)
     }
 }
 
@@ -178,18 +178,15 @@ where
             return Some(Err(msg));
         }
 
-        match self.read_digits_and_skip_tail() {
-            Ok(digits) => match checked_number_from_digits(&digits, COLOR_CODE_BASE) {
-                Ok(sum) => {
-                    if sum == 0 {
-                        None
-                    } else {
-                        Some(ColorCode::new(sum))
-                    }
+        match self.parse_color_code() {
+            Ok(sum) => {
+                if sum == 0 {
+                    None
+                } else {
+                    Some(ColorCode::new(sum))
                 }
-                Err(msg) => Some(Err(format!("{} while parsing color code", msg))),
-            },
-            Err(msg) => Some(Err(msg)),
+            }
+            Err(msg) => Some(Err(format!("{} while parsing color code", msg))),
         }
     }
 }
