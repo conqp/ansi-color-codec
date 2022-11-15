@@ -7,8 +7,8 @@ const COLOR_OFFSET_HIGH: u8 = 100;
 const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
 const COLOR_CODE_MAX: u8 = MASK_LOW;
 const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
+const COLOR_CODE_BASE: u8 = 10;
 const CODE_START: u8 = 0x1b;
-const NUMBER_BASE: u8 = 10;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
@@ -143,7 +143,7 @@ where
 
         self.bytes.next();
 
-        match checked_number_from_digits(&base_10_digits, NUMBER_BASE) {
+        match checked_number_from_digits(&base_10_digits, COLOR_CODE_BASE) {
             Ok(sum) => {
                 if sum == 0 {
                     None
