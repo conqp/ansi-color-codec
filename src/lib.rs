@@ -147,7 +147,7 @@ where
 
         self.bytes.next();
 
-        match checked_add(&base_10_digits, NUMBER_BASE) {
+        match checked_number_from_digits(&base_10_digits, NUMBER_BASE) {
             Ok(sum) => {
                 if sum == 0 {
                     None
@@ -244,7 +244,7 @@ where
     }
 }
 
-fn checked_add(digits: &[u8], base: u8) -> Result<u8, String> {
+fn checked_number_from_digits(digits: &[u8], base: u8) -> Result<u8, String> {
     let mut result: u8 = 0;
 
     for (index, digit) in digits.iter().rev().enumerate() {
