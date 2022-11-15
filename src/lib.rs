@@ -85,7 +85,6 @@ where
     T: Iterator<Item = u8>,
 {
     bytes: T,
-    utf_8_bom_processed: bool,
 }
 
 impl<T> From<T> for ColorCodesFromBytes<T>
@@ -93,10 +92,7 @@ where
     T: Iterator<Item = u8>,
 {
     fn from(bytes: T) -> Self {
-        Self {
-            bytes,
-            utf_8_bom_processed: false,
-        }
+        Self { bytes }
     }
 }
 
