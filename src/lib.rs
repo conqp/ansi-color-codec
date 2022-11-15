@@ -41,7 +41,7 @@ pub struct ColorCode {
 
 impl ColorCode {
     pub fn new(number: u8) -> Result<Self, String> {
-        if (0..COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX).contains(&number)
+        if (0..=COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX).contains(&number)
             || (COLOR_OFFSET_HIGH..=COLOR_OFFSET_HIGH + COLOR_CODE_LOW_MAX).contains(&number)
         {
             Ok(Self { number })
