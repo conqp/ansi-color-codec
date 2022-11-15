@@ -1,6 +1,6 @@
 const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
-const MASK_SIZE: u8 = 4;
+const MASK_BITS: u8 = 4;
 const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 const COLOR_OFFSET_LOW: u8 = 40;
 const COLOR_OFFSET_HIGH: u8 = 100;
@@ -184,10 +184,10 @@ where
             Some(high) => match high {
                 Ok(high) => match self.codes.next() {
                     Some(low) => match low {
-                        Ok(low) => Some(Ok((high.normalized() << MASK_SIZE) + low.normalized())),
+                        Ok(low) => Some(Ok((high.normalized() << MASK_BITS) + low.normalized())),
                         Err(msg) => Some(Err(msg)),
                     },
-                    None => Some(Ok(high.normalized() << MASK_SIZE)),
+                    None => Some(Ok(high.normalized() << MASK_BITS)),
                 },
                 Err(msg) => Some(Err(msg)),
             },
@@ -232,7 +232,7 @@ where
             None => match self.bytes.next() {
                 Some(byte) => {
                     self.current = Some(byte);
-                    Some(ColorCode::try_from((byte & MASK_HIGH) >> MASK_SIZE).unwrap())
+                    Some(ColorCode::try_from((byte & MASK_HIGH) >> MASK_BITS).unwrap())
                 }
                 None => None,
             },
