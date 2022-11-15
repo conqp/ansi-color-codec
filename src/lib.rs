@@ -40,8 +40,14 @@ pub struct ColorCode {
 }
 
 impl ColorCode {
-    pub fn new(number: u8) -> Self {
-        Self { number }
+    pub fn new(number: u8) -> Result<Self, String> {
+        if (0..COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX).contains(&number)
+            || (COLOR_OFFSET_HIGH..=COLOR_OFFSET_HIGH + COLOR_CODE_LOW_MAX).contains(&number)
+        {
+            Ok(Self { number })
+        } else {
+            Err(format!("Invalid color code: {}", number))
+        }
     }
 
     pub fn normalized(&self) -> u8 {
@@ -58,9 +64,9 @@ impl TryFrom<u8> for ColorCode {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         if value <= COLOR_CODE_LOW_MAX {
-            Ok(Self::new(value + COLOR_OFFSET_LOW))
+            Self::new(value + COLOR_OFFSET_LOW)
         } else if value <= COLOR_CODE_MAX {
-            Ok(Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH))
+            Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH)
         } else {
             Err(format!("Value out of bounds for color code: {}", value))
         }
@@ -146,7 +152,7 @@ where
                 if sum == 0 {
                     None
                 } else {
-                    Some(Ok(ColorCode::new(sum)))
+                    Some(ColorCode::new(sum))
                 }
             }
             Err(msg) => Some(Err(msg)),
