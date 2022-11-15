@@ -101,7 +101,7 @@ where
     type Item = Result<ColorCode, String>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut digits = Vec::new();
+        let mut base_10_digits = Vec::new();
 
         match self.bytes.next() {
             Some(byte) => {
@@ -125,7 +125,7 @@ where
             match self.bytes.next() {
                 Some(byte) => {
                     if byte.is_ascii_digit() {
-                        digits.push(byte);
+                        base_10_digits.push(byte & MASK_LOW);
                     } else if byte as char == NUMBER_SUFFIX {
                         break;
                     } else {
@@ -141,15 +141,15 @@ where
 
         self.bytes.next();
 
-        match digits
-            .iter()
-            .rev()
-            .enumerate()
-            .map(|(index, digit)| (digit & MASK_LOW) * NUMBER_BASE.pow(index as u32))
-            .sum()
-        {
-            0 => None,
-            sum => Some(Ok(ColorCode::new(sum))),
+        match checked_add(&base_10_digits, NUMBER_BASE) {
+            Ok(sum) => {
+                if sum == 0 {
+                    None
+                } else {
+                    Some(Ok(ColorCode::new(sum)))
+                }
+            }
+            Err(msg) => Some(Err(msg)),
         }
     }
 }
@@ -236,4 +236,28 @@ where
             },
         }
     }
+}
+
+fn checked_add(digits: &[u8], base: u8) -> Result<u8, String> {
+    let mut result: u8 = 0;
+
+    for (index, digit) in digits.iter().rev().enumerate() {
+        match u32::try_from(index) {
+            Ok(exponent) => match base.checked_pow(exponent) {
+                Some(factor) => match factor.checked_mul(*digit) {
+                    Some(position) => match result.checked_add(position) {
+                        Some(sum) => {
+                            result = sum;
+                        }
+                        None => return Err(format!("Integer overflow: {} + {}", result, position)),
+                    },
+                    None => return Err(format!("Integer overflow: {} * {}", digit, factor)),
+                },
+                None => return Err(format!("Integer overflow: {}^{}", base, exponent)),
+            },
+            Err(_) => return Err(format!("Exponent out of bounds: {}", index)),
+        }
+    }
+
+    Ok(result)
 }
