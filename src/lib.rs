@@ -155,7 +155,7 @@ where
                     Some(ColorCode::new(sum))
                 }
             }
-            Err(msg) => Some(Err(msg)),
+            Err(msg) => Some(Err(format!("{} while parsing color code", msg))),
         }
     }
 }
