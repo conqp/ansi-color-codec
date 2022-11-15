@@ -247,21 +247,18 @@ where
 fn checked_number_from_digits(digits: &[u8], base: u8) -> Result<u8, String> {
     let mut result: u8 = 0;
 
-    for (index, digit) in digits.iter().rev().enumerate() {
-        match u32::try_from(index) {
-            Ok(exponent) => match base.checked_pow(exponent) {
-                Some(factor) => match factor.checked_mul(*digit) {
-                    Some(position) => match result.checked_add(position) {
-                        Some(sum) => {
-                            result = sum;
-                        }
-                        None => return Err(format!("Integer overflow: {} + {}", result, position)),
-                    },
-                    None => return Err(format!("Integer overflow: {} * {}", digit, factor)),
+    for (exponent, digit) in digits.iter().rev().enumerate() {
+        match base.checked_pow(exponent as u32) {
+            Some(factor) => match factor.checked_mul(*digit) {
+                Some(position) => match result.checked_add(position) {
+                    Some(sum) => {
+                        result = sum;
+                    }
+                    None => return Err(format!("Integer overflow: {} + {}", result, position)),
                 },
-                None => return Err(format!("Integer overflow: {}^{}", base, exponent)),
+                None => return Err(format!("Integer overflow: {} * {}", digit, factor)),
             },
-            Err(_) => return Err(format!("Exponent out of bounds: {}", index)),
+            None => return Err(format!("Integer overflow: {}^{}", base, exponent)),
         }
     }
 
