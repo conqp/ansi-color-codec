@@ -113,7 +113,7 @@ impl<T> ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
 {
-    fn process_header(&mut self) -> Option<Result<(), String>> {
+    fn next_header(&mut self) -> Option<Result<(), String>> {
         match self.bytes.next() {
             Some(byte) => {
                 if byte == CODE_START {
@@ -190,7 +190,7 @@ where
     type Item = Result<ColorCode, String>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Err(msg) = self.process_header()? {
+        if let Err(msg) = self.next_header()? {
             return Some(Err(msg));
         }
 
