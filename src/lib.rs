@@ -13,6 +13,7 @@ const MAX_DIGITS: u8 = 3;
 const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
+const SPACE: char = ' ';
 const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
 
 type ColorCodes<T> = FlatMap<T, [ColorCode; 2], fn(u8) -> [ColorCode; 2]>;
@@ -79,7 +80,7 @@ impl TryFrom<u8> for ColorCode {
 
 impl ToString for ColorCode {
     fn to_string(&self) -> String {
-        format!("\x1b[{}m ", self.number)
+        format!("{}{}{}{}{}", CODE_START as char ,NUMBER_PREFIX, self.number, NUMBER_SUFFIX, SPACE)
     }
 }
 
