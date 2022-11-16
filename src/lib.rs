@@ -80,7 +80,10 @@ impl TryFrom<u8> for ColorCode {
 
 impl ToString for ColorCode {
     fn to_string(&self) -> String {
-        format!("{}{}{}{}{}", CODE_START as char ,NUMBER_PREFIX, self.number, NUMBER_SUFFIX, SPACE)
+        format!(
+            "{}{}{}{}{}",
+            CODE_START as char, NUMBER_PREFIX, self.number, NUMBER_SUFFIX, SPACE
+        )
     }
 }
 
