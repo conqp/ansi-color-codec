@@ -9,8 +9,7 @@ readme = "README.md"
 documentation = "https://docs.rs/ansi-color-codec"
 keywords = [ "ANSI", "color", "encoding"]
 categories = ["command-line-utilities", "encoding"]
-version = "0.3.8"
-edition = "2021"
+version = "0.3.7"
 exclude = [
     ".gitignore",
     "input.txt",
