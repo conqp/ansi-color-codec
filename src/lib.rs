@@ -1,3 +1,5 @@
+use std::iter::FlatMap;
+
 const MASK_LOW: u8 = 0b00001111;
 const MASK_HIGH: u8 = 0b11110000;
 const MASK_BITS: u8 = 4;
@@ -14,11 +16,13 @@ const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
 
+type ColorCodes<T> = FlatMap<T, [ColorCode; 2], fn(u8) -> [ColorCode; 2]>;
+
 pub trait ColorCodec<T>
 where
     T: Iterator<Item = u8>,
 {
-    fn ansi_color_encode(self) -> BytesToColorCodes<T>;
+    fn ansi_color_encode(self) -> ColorCodes<T>;
     fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>>;
 }
 
@@ -26,8 +30,8 @@ impl<T> ColorCodec<T> for T
 where
     T: Iterator<Item = u8>,
 {
-    fn ansi_color_encode(self) -> BytesToColorCodes<T> {
-        BytesToColorCodes::from(self)
+    fn ansi_color_encode(self) -> ColorCodes<T> {
+        self.flat_map(|byte| byte.to_color_codes())
     }
 
     fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>> {
@@ -77,6 +81,19 @@ impl TryFrom<u8> for ColorCode {
 impl ToString for ColorCode {
     fn to_string(&self) -> String {
         format!("\x1b[{}m ", self.number)
+    }
+}
+
+pub trait ToColorCodes {
+    fn to_color_codes(&self) -> [ColorCode; 2];
+}
+
+impl ToColorCodes for u8 {
+    fn to_color_codes(&self) -> [ColorCode; 2] {
+        [
+            ColorCode::try_from((self & MASK_HIGH) >> MASK_BITS).unwrap(),
+            ColorCode::try_from(self & MASK_LOW).unwrap(),
+        ]
     }
 }
 
@@ -227,50 +244,6 @@ where
                 Err(msg) => Some(Err(msg)),
             },
             None => None,
-        }
-    }
-}
-
-#[derive(Debug, Eq, PartialEq)]
-pub struct BytesToColorCodes<T>
-where
-    T: Iterator<Item = u8>,
-{
-    bytes: T,
-    current: Option<u8>,
-}
-
-impl<T> From<T> for BytesToColorCodes<T>
-where
-    T: Iterator<Item = u8>,
-{
-    fn from(bytes: T) -> Self {
-        Self {
-            bytes,
-            current: None,
-        }
-    }
-}
-
-impl<T> Iterator for BytesToColorCodes<T>
-where
-    T: Iterator<Item = u8>,
-{
-    type Item = ColorCode;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self.current {
-            Some(byte) => {
-                self.current = None;
-                Some(ColorCode::try_from(byte & MASK_LOW).unwrap())
-            }
-            None => match self.bytes.next() {
-                Some(byte) => {
-                    self.current = Some(byte);
-                    Some(ColorCode::try_from((byte & MASK_HIGH) >> MASK_BITS).unwrap())
-                }
-                None => None,
-            },
         }
     }
 }
