@@ -83,16 +83,21 @@ impl ToString for ColorCode {
     }
 }
 
-pub trait ToColorCodes {
+trait ColorEncodable {
     fn to_color_codes(&self) -> [ColorCode; 2];
+    fn from_color_codes(color_codes: [ColorCode; 2]) -> Self;
 }
 
-impl ToColorCodes for u8 {
+impl ColorEncodable for u8 {
     fn to_color_codes(&self) -> [ColorCode; 2] {
         [
             ColorCode::try_from((self & MASK_HIGH) >> MASK_BITS).unwrap(),
             ColorCode::try_from(self & MASK_LOW).unwrap(),
         ]
+    }
+
+    fn from_color_codes(color_codes: [ColorCode; 2]) -> Self {
+        (color_codes[0].normalized() << MASK_BITS) + color_codes[1].normalized()
     }
 }
 
@@ -136,8 +141,12 @@ where
         for count in 0..=MAX_DIGITS {
             match self.bytes.next() {
                 Some(byte) => {
-                    if byte.is_ascii_digit() && count < MAX_DIGITS {
-                        digits.push(byte as char);
+                    if byte.is_ascii_digit() {
+                        if count < MAX_DIGITS {
+                            digits.push(byte as char);
+                        } else {
+                            return Err(format!("Expected at most {} digits", MAX_DIGITS));
+                        }
                     } else if byte as char == NUMBER_SUFFIX {
                         return if digits.is_empty() {
                             Err("Expected at least one digit".to_string())
@@ -226,10 +235,10 @@ where
             Some(high) => match high {
                 Ok(high) => match self.codes.next() {
                     Some(low) => match low {
-                        Ok(low) => Some(Ok((high.normalized() << MASK_BITS) + low.normalized())),
+                        Ok(low) => Some(Ok(u8::from_color_codes([high, low]))),
                         Err(msg) => Some(Err(msg)),
                     },
-                    None => Some(Ok(high.normalized() << MASK_BITS)),
+                    None => Some(Err("Missing second color code block".to_string())),
                 },
                 Err(msg) => Some(Err(msg)),
             },
