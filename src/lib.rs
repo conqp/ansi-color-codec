@@ -18,12 +18,16 @@ const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
 
 type ColorCodes<T> = FlatMap<T, [ColorCode; 2], fn(u8) -> [ColorCode; 2]>;
 
-pub trait ColorCodec<T>
+pub trait ColorCodec<T>: Sized
 where
     T: Iterator<Item = u8>,
 {
     fn ansi_color_encode(self) -> ColorCodes<T>;
-    fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>>;
+    fn ansi_colors(self) -> ColorCodesFromBytes<T>;
+
+    fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>> {
+        self.ansi_colors().into()
+    }
 }
 
 impl<T> ColorCodec<T> for T
@@ -34,8 +38,8 @@ where
         self.flat_map(|byte| byte.to_color_codes())
     }
 
-    fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>> {
-        ColorCodesToBytes::from(ColorCodesFromBytes::from(self))
+    fn ansi_colors(self) -> ColorCodesFromBytes<T> {
+        self.into()
     }
 }
 
