@@ -9,7 +9,6 @@ const COLOR_OFFSET_HIGH: u8 = 100;
 const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
 const COLOR_CODE_MAX: u8 = MASK_LOW;
 const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
-const COLOR_CODE_BASE: u8 = 10;
 const MAX_DIGITS: u8 = 3;
 const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
@@ -131,14 +130,14 @@ where
         }
     }
 
-    fn read_digits(&mut self) -> Result<Vec<u8>, String> {
-        let mut digits = Vec::new();
+    fn read_digits(&mut self) -> Result<String, String> {
+        let mut digits = String::new();
 
         for _ in 0..MAX_DIGITS {
             match self.bytes.next() {
                 Some(byte) => {
                     if byte.is_ascii_digit() {
-                        digits.push(byte & MASK_LOW);
+                        digits.push(byte as char);
                     } else if byte as char == NUMBER_SUFFIX {
                         return if digits.is_empty() {
                             Err("Expected at least one digit".to_string())
@@ -171,7 +170,10 @@ where
     fn parse_color_code(&mut self) -> Result<u8, String> {
         let digits = self.read_digits()?;
         self.bytes.next();
-        checked_number_from_digits(&digits, COLOR_CODE_BASE)
+        match digits.parse::<u8>() {
+            Ok(number) => Ok(number),
+            Err(_) => Err(format!("Could not parse u8 from {}", digits)),
+        }
     }
 }
 
@@ -246,34 +248,4 @@ where
             None => None,
         }
     }
-}
-
-fn checked_number_from_digits(digits: &[u8], base: u8) -> Result<u8, String> {
-    let mut result: u8 = 0;
-    let mut exponent: u32 = 0;
-
-    for digit in digits.iter().rev() {
-        match base.checked_pow(exponent) {
-            Some(factor) => match factor.checked_mul(*digit) {
-                Some(position) => match result.checked_add(position) {
-                    Some(sum) => {
-                        result = sum;
-                        match exponent.checked_add(1) {
-                            Some(sum) => {
-                                exponent = sum;
-                            }
-                            None => {
-                                return Err(format!("Exponent out of bounds: {} + 1", exponent))
-                            }
-                        }
-                    }
-                    None => return Err(format!("Integer overflow: {} + {}", result, position)),
-                },
-                None => return Err(format!("Integer overflow: {} * {}", digit, factor)),
-            },
-            None => return Err(format!("Integer overflow: {}^{}", base, exponent)),
-        }
-    }
-
-    Ok(result)
 }
