@@ -133,10 +133,10 @@ where
     fn read_digits(&mut self) -> Result<String, String> {
         let mut digits = String::new();
 
-        for _ in 0..MAX_DIGITS {
+        for count in 0..=MAX_DIGITS {
             match self.bytes.next() {
                 Some(byte) => {
-                    if byte.is_ascii_digit() {
+                    if byte.is_ascii_digit() && count < MAX_DIGITS {
                         digits.push(byte as char);
                     } else if byte as char == NUMBER_SUFFIX {
                         return if digits.is_empty() {
@@ -152,19 +152,7 @@ where
             }
         }
 
-        match self.bytes.next() {
-            Some(byte) => {
-                if byte as char == NUMBER_SUFFIX {
-                    Ok(digits)
-                } else {
-                    Err(format!(
-                        "Expected number suffix \"{}\" but found \"{}\"",
-                        NUMBER_SUFFIX, byte
-                    ))
-                }
-            }
-            None => Err(UNEXPECTED_TERMINATION_MSG.to_string()),
-        }
+        Ok(digits)
     }
 
     fn parse_color_code(&mut self) -> Result<u8, String> {
