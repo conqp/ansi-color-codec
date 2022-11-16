@@ -166,7 +166,7 @@ where
 
     fn parse_color_code(&mut self) -> Result<u8, String> {
         let digits = self.read_digits()?;
-        self.bytes.next(); // Discard tail
+        self.bytes.next(); // Discard bg-color encoded char
         match digits.parse::<u8>() {
             Ok(number) => Ok(number),
             Err(_) => Err(format!("Could not parse u8 from {}", digits)),
