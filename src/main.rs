@@ -1,4 +1,4 @@
-use ansi_color_codec::ColorCodec;
+use ansi_color_codec::{ColorCodec, RESET};
 use clap::Parser;
 use ctrlc::set_handler;
 use std::io::{stdin, stdout, Read, Write};
@@ -61,7 +61,7 @@ fn encode(bytes: impl Iterator<Item = u8>, clear: bool) {
     }
 
     if clear {
-        println!("\x1b[0m ");
+        println!("{}", RESET);
     }
 }
 

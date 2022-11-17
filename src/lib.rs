@@ -16,15 +16,103 @@ const NUMBER_SUFFIX: char = 'm';
 const SPACE: char = ' ';
 const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
 
+/// Print this str to reset a color code sequence on the terminal
+pub const RESET: &str = "\x1b[0m ";
+
 type ColorCodes<T> = FlatMap<T, [ColorCode; 2], fn(u8) -> [ColorCode; 2]>;
 
+/// Gives u8 iterators the ability to en- / decode bytes to / from ANSI background colors
 pub trait ColorCodec<T>: Sized
 where
     T: Iterator<Item = u8>,
 {
+    /// Returns an iterator that encodes all bytes as ANSI background colors
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ansi_color_codec::ColorCodec;
+    ///
+    /// let text = String::from("Hello world.");
+    /// let reference: Vec<u8> = vec![
+    ///     27, 91, 52, 52, 109, 32, 27, 91, 49, 48, 48, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91,
+    ///     52, 53, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91, 49, 48, 52, 109, 32, 27, 91, 52, 54,
+    ///     109, 32, 27, 91, 49, 48, 52, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91, 49, 48, 55, 109,
+    ///     32, 27, 91, 52, 50, 109, 32, 27, 91, 52, 48, 109, 32, 27, 91, 52, 55, 109, 32, 27, 91,
+    ///     52, 55, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91, 49, 48, 55, 109, 32, 27, 91, 52, 55,
+    ///     109, 32, 27, 91, 52, 50, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91, 49, 48, 52, 109, 32,
+    ///     27, 91, 52, 54, 109, 32, 27, 91, 52, 52, 109, 32, 27, 91, 52, 50, 109, 32, 27, 91, 49,
+    ///     48, 54, 109, 32,
+    /// ];
+    /// let code: Vec<u8> = text
+    ///     .bytes()
+    ///     .ansi_color_encode()
+    ///     .map(|color| color.to_string())
+    ///     .collect::<String>()
+    ///     .bytes()
+    ///     .collect();
+    /// assert_eq!(code, reference);
+    /// ```
     fn ansi_color_encode(self) -> ColorCodes<T>;
+
+    /// Returns an iterator that interprets all bytes of a u8 iterator as an ANSI color code
+    /// sequence
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ansi_color_codec::{ColorCode, ColorCodec};
+    ///
+    /// let reference: Vec<ColorCode> = vec![
+    ///     ColorCode::new(44).unwrap(), ColorCode::new(100).unwrap(), ColorCode::new(46).unwrap(),
+    ///     ColorCode::new(45).unwrap(), ColorCode::new(46).unwrap(), ColorCode::new(104).unwrap(),
+    ///     ColorCode::new(46).unwrap(), ColorCode::new(104).unwrap(), ColorCode::new(46).unwrap(),
+    ///     ColorCode::new(107).unwrap(), ColorCode::new(42).unwrap(), ColorCode::new(40).unwrap(),
+    ///     ColorCode::new(47).unwrap(), ColorCode::new(47).unwrap(), ColorCode::new(46).unwrap(),
+    ///     ColorCode::new(107).unwrap(), ColorCode::new(47).unwrap(), ColorCode::new(42).unwrap(),
+    ///     ColorCode::new(46).unwrap(), ColorCode::new(104).unwrap(), ColorCode::new(46).unwrap(),
+    ///     ColorCode::new(44).unwrap(), ColorCode::new(42).unwrap(), ColorCode::new(106).unwrap(),
+    /// ];
+    /// let code: [u8; 151] = [
+    ///     27, 91, 52, 52, 109, 32, 27, 91, 49, 48, 48, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91,
+    ///     52, 53, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91, 49, 48, 52, 109, 32, 27, 91, 52, 54,
+    ///     109, 32, 27, 91, 49, 48, 52, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91, 49, 48, 55, 109,
+    ///     32, 27, 91, 52, 50, 109, 32, 27, 91, 52, 48, 109, 32, 27, 91, 52, 55, 109, 32, 27, 91,
+    ///     52, 55, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91, 49, 48, 55, 109, 32, 27, 91, 52, 55,
+    ///     109, 32, 27, 91, 52, 50, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91, 49, 48, 52, 109, 32,
+    ///     27, 91, 52, 54, 109, 32, 27, 91, 52, 52, 109, 32, 27, 91, 52, 50, 109, 32, 27, 91, 49,
+    ///     48, 54, 109, 32
+    /// ];
+    /// let colors: Vec<ColorCode> = code
+    ///     .into_iter()
+    ///     .interpret_as_ansi_colors()
+    ///     .map(|color| color.unwrap())
+    ///     .collect();
+    /// assert_eq!(colors, reference);
+    /// ```
     fn interpret_as_ansi_colors(self) -> ColorCodesFromBytes<T>;
 
+    /// Returns an iterator that decodes all bytes interpreted as a sequence of  ANSI background
+    /// colors to raw bytes
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ansi_color_codec::ColorCodec;
+    ///
+    /// let text = String::from("Hello world.");
+    /// let code: String = text
+    ///     .bytes()
+    ///     .ansi_color_encode()
+    ///     .map(|color| color.to_string())
+    ///     .collect();
+    /// let decoded: String = code
+    ///     .bytes()
+    ///     .ansi_color_decode()
+    ///     .map(|result| result.unwrap() as char)
+    ///     .collect();
+    /// assert_eq!(text, decoded);
+    /// ```
     fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>> {
         self.interpret_as_ansi_colors().into()
     }
