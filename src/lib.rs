@@ -23,10 +23,10 @@ where
     T: Iterator<Item = u8>,
 {
     fn ansi_color_encode(self) -> ColorCodes<T>;
-    fn to_ansi_colors(self) -> ColorCodesFromBytes<T>;
+    fn interpret_as_ansi_colors(self) -> ColorCodesFromBytes<T>;
 
     fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>> {
-        self.to_ansi_colors().into()
+        self.interpret_as_ansi_colors().into()
     }
 }
 
@@ -38,7 +38,7 @@ where
         self.flat_map(|byte| byte.to_color_codes())
     }
 
-    fn to_ansi_colors(self) -> ColorCodesFromBytes<T> {
+    fn interpret_as_ansi_colors(self) -> ColorCodesFromBytes<T> {
         self.into()
     }
 }
