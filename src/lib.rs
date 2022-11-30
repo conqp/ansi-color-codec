@@ -92,7 +92,7 @@ where
     /// ```
     fn interpret_as_ansi_colors(self) -> ColorCodesFromBytes<T>;
 
-    /// Returns an iterator that decodes all bytes interpreted as a sequence of  ANSI background
+    /// Returns an iterator that decodes all bytes interpreted as a sequence of ANSI background
     /// colors to raw bytes
     ///
     /// # Examples
