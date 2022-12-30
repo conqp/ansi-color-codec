@@ -187,8 +187,14 @@ trait ColorEncodable {
 impl ColorEncodable for u8 {
     fn to_color_codes(&self) -> [ColorCode; 2] {
         [
-            ColorCode::try_from((self & MASK_HIGH) >> MASK_BITS).unwrap(),
-            ColorCode::try_from(self & MASK_LOW).unwrap(),
+            match ColorCode::try_from((self & MASK_HIGH) >> MASK_BITS) {
+                Ok(high) => high,
+                Err(_) => unreachable!(),
+            },
+            match ColorCode::try_from(self & MASK_LOW) {
+                Ok(low) => low,
+                Err(_) => unreachable!(),
+            },
         ]
     }
 
