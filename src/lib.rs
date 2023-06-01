@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::iter::FlatMap;
 
 const MASK_LOW: u8 = 0b00001111;
@@ -167,9 +168,10 @@ impl TryFrom<u8> for ColorCode {
     }
 }
 
-impl ToString for ColorCode {
-    fn to_string(&self) -> String {
-        format!(
+impl Display for ColorCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "{}{}{}{}{}",
             CODE_START as char, NUMBER_PREFIX, self.number, NUMBER_SUFFIX, SPACE
         )
