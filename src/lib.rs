@@ -63,16 +63,13 @@ where
     /// ```
     /// use ansi_color_codec::{ColorCode, ColorCodec};
     ///
-    /// let reference: Vec<ColorCode> = vec![
-    ///     ColorCode::new(44).unwrap(), ColorCode::new(100).unwrap(), ColorCode::new(46).unwrap(),
-    ///     ColorCode::new(45).unwrap(), ColorCode::new(46).unwrap(), ColorCode::new(104).unwrap(),
-    ///     ColorCode::new(46).unwrap(), ColorCode::new(104).unwrap(), ColorCode::new(46).unwrap(),
-    ///     ColorCode::new(107).unwrap(), ColorCode::new(42).unwrap(), ColorCode::new(40).unwrap(),
-    ///     ColorCode::new(47).unwrap(), ColorCode::new(47).unwrap(), ColorCode::new(46).unwrap(),
-    ///     ColorCode::new(107).unwrap(), ColorCode::new(47).unwrap(), ColorCode::new(42).unwrap(),
-    ///     ColorCode::new(46).unwrap(), ColorCode::new(104).unwrap(), ColorCode::new(46).unwrap(),
-    ///     ColorCode::new(44).unwrap(), ColorCode::new(42).unwrap(), ColorCode::new(106).unwrap(),
+    /// let codes: Vec<u8> = vec![
+    ///     44, 100, 46, 45, 46, 104, 46, 104, 46, 107, 42, 40, 47, 47, 46, 107, 47, 42, 46, 104,
+    ///     46, 44, 42, 106,
     /// ];
+    /// let reference: Vec<ColorCode> = codes.iter().map(
+    ///     |&code| ColorCode::new(code).unwrap()
+    /// ).collect();
     /// let code: [u8; 151] = [
     ///     27, 91, 52, 52, 109, 32, 27, 91, 49, 48, 48, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91,
     ///     52, 53, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91, 49, 48, 52, 109, 32, 27, 91, 52, 54,
