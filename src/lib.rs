@@ -1,8 +1,8 @@
 use std::fmt::{Display, Formatter};
 use std::iter::FlatMap;
 
-const MASK_LOW: u8 = 0b00001111;
-const MASK_HIGH: u8 = 0b11110000;
+const MASK_LOW: u8 = 0b0000_1111;
+const MASK_HIGH: u8 = 0b1111_0000;
 const MASK_BITS: u8 = 4;
 const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 const COLOR_OFFSET_LOW: u8 = 40;
@@ -141,11 +141,12 @@ impl ColorCode {
         {
             Ok(Self { number })
         } else {
-            Err(format!("Invalid color code: {}", number))
+            Err(format!("Invalid color code: {number}"))
         }
     }
 
-    pub fn normalized(&self) -> u8 {
+    #[must_use]
+    pub const fn normalized(&self) -> u8 {
         if self.number < COLOR_OFFSET_HIGH {
             self.number - COLOR_OFFSET_LOW
         } else {
@@ -163,7 +164,7 @@ impl TryFrom<u8> for ColorCode {
         } else if value <= COLOR_CODE_MAX {
             Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH)
         } else {
-            Err(format!("Value out of bounds for color code: {}", value))
+            Err(format!("Value out of bounds for color code: {value}"))
         }
     }
 }
@@ -186,14 +187,9 @@ trait ColorEncodable {
 impl ColorEncodable for u8 {
     fn to_color_codes(&self) -> [ColorCode; 2] {
         [
-            match ColorCode::try_from((self & MASK_HIGH) >> MASK_BITS) {
-                Ok(high) => high,
-                Err(_) => unreachable!(),
-            },
-            match ColorCode::try_from(self & MASK_LOW) {
-                Ok(low) => low,
-                Err(_) => unreachable!(),
-            },
+            ColorCode::try_from((self & MASK_HIGH) >> MASK_BITS)
+                .map_or_else(|_| unreachable!(), |high| high),
+            ColorCode::try_from(self & MASK_LOW).map_or_else(|_| unreachable!(), |low| low),
         ]
     }
 
@@ -218,18 +214,18 @@ where
         match self.bytes.next() {
             Some(byte) => {
                 if byte == CODE_START {
-                    match self.bytes.next() {
-                        Some(byte) => {
+                    self.bytes.next().map_or_else(
+                        || Some(Err(UNEXPECTED_TERMINATION_MSG.to_string())),
+                        |byte| {
                             if byte as char == NUMBER_PREFIX {
                                 Some(Ok(()))
                             } else {
-                                Some(Err(format!("Invalid number prefix: {}", byte)))
+                                Some(Err(format!("Invalid number prefix: {byte}")))
                             }
-                        }
-                        None => Some(Err(UNEXPECTED_TERMINATION_MSG.to_string())),
-                    }
+                        },
+                    )
                 } else {
-                    Some(Err(format!("Invalid start byte: {}", byte)))
+                    Some(Err(format!("Invalid start byte: {byte}")))
                 }
             }
             None => None,
@@ -246,7 +242,7 @@ where
                         if count < MAX_DIGITS {
                             digits.push(byte as char);
                         } else {
-                            return Err(format!("Expected at most {} digits", MAX_DIGITS));
+                            return Err(format!("Expected at most {MAX_DIGITS} digits"));
                         }
                     } else if byte as char == NUMBER_SUFFIX {
                         return if digits.is_empty() {
@@ -255,7 +251,7 @@ where
                             Ok(digits)
                         };
                     } else {
-                        return Err(format!("Encountered Unexpected byte \"{}\"", byte));
+                        return Err(format!("Encountered Unexpected byte \"{byte}\""));
                     }
                 }
                 None => return Err(UNEXPECTED_TERMINATION_MSG.to_string()),
@@ -268,10 +264,9 @@ where
     fn parse_color_code(&mut self) -> Result<u8, String> {
         let digits = self.read_digits()?;
         self.bytes.next(); // Discard bg-color encoded char
-        match digits.parse::<u8>() {
-            Ok(number) => Ok(number),
-            Err(_) => Err(format!("Could not parse u8 from {}", digits)),
-        }
+        digits
+            .parse::<u8>()
+            .map_or_else(|_| Err(format!("Could not parse u8 from {digits}")), Ok)
     }
 }
 
@@ -303,7 +298,7 @@ where
                     Some(ColorCode::new(sum))
                 }
             }
-            Err(msg) => Some(Err(format!("{} while parsing color code", msg))),
+            Err(msg) => Some(Err(format!("{msg} while parsing color code"))),
         }
     }
 }
@@ -334,13 +329,13 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         match self.codes.next() {
             Some(high) => match high {
-                Ok(high) => match self.codes.next() {
-                    Some(low) => match low {
+                Ok(high) => self.codes.next().map_or_else(
+                    || Some(Err("Missing second color code block".to_string())),
+                    |low| match low {
                         Ok(low) => Some(Ok(u8::from_color_codes([high, low]))),
                         Err(msg) => Some(Err(msg)),
                     },
-                    None => Some(Err("Missing second color code block".to_string())),
-                },
+                ),
                 Err(msg) => Some(Err(msg)),
             },
             None => None,

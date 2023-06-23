@@ -31,30 +31,30 @@ fn main() {
     .expect("Error setting Ctrl-C handler");
 
     if args.decode {
-        decode(&mut stdout, bytes)
+        decode(&mut stdout, bytes);
     } else {
-        encode(&mut stdout, bytes, !args.no_clear)
+        encode(&mut stdout, bytes, !args.no_clear);
     }
 }
 
 fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
     bytes
         .ansi_color_decode()
-        .map_while(|result| result.ok())
+        .map_while(Result::ok)
         .for_each(|byte| {
             f.write_all(&[byte]).expect(STDOUT_WRITE_ERR);
         });
 
-    f.flush().expect("Could not flush STDOUT")
+    f.flush().expect("Could not flush STDOUT");
 }
 
 fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>, clear: bool) {
     bytes.ansi_color_encode().for_each(|code| {
-        write!(f, "{}", code).expect(STDOUT_WRITE_ERR);
+        write!(f, "{code}").expect(STDOUT_WRITE_ERR);
     });
 
     if clear {
-        write!(f, "{}", RESET).expect(STDOUT_WRITE_ERR);
+        write!(f, "{RESET}").expect(STDOUT_WRITE_ERR);
     }
 }
 
@@ -62,5 +62,5 @@ fn stream_stdin(running: Arc<AtomicBool>) -> impl Iterator<Item = u8> {
     BufReader::new(stdin().lock())
         .bytes()
         .take_while(move |_| running.load(Ordering::SeqCst))
-        .map_while(|byte| byte.ok())
+        .map_while(Result::ok)
 }
