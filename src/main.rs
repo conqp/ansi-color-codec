@@ -68,5 +68,5 @@ fn stream_stdin(running: Arc<AtomicBool>) -> impl Iterator<Item = u8> {
     BufReader::new(stdin().lock())
         .bytes()
         .take_while(move |_| running.load(Ordering::SeqCst))
-        .filter_map(Result::ok)
+        .map_while(Result::ok)
 }
