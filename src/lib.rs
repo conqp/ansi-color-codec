@@ -15,12 +15,46 @@ const CODE_START: u8 = 0x1b;
 const NUMBER_PREFIX: char = '[';
 const NUMBER_SUFFIX: char = 'm';
 const SPACE: char = ' ';
-const UNEXPECTED_TERMINATION_MSG: &str = "Byte stream terminated unexpectedly";
 
 /// Print this str to reset a color code sequence on the terminal
 pub const RESET: &str = "\x1b[0m ";
 
 type ColorCodes<T> = FlatMap<T, [ColorCode; 2], fn(u8) -> [ColorCode; 2]>;
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Error {
+    ByteStreamTerminatedUnexpectedly,
+    InvalidCodeValue(String),
+    InvalidColorCode(u8),
+    InvalidNumberPrefix(u8),
+    InvalidStartByte(u8),
+    MissingSecondColorCodeBlock,
+    NoCodeDigitsFound,
+    TooManyCodeDigits(u8),
+    UnexpectedByte(u8),
+    ValueOutOfBounds(u8),
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ByteStreamTerminatedUnexpectedly => {
+                write!(f, "byte stream terminated unexpectedly")
+            }
+            Self::InvalidCodeValue(value) => write!(f, "invalid code value: {value}"),
+            Self::InvalidColorCode(code) => write!(f, "invalid color code: {code:?}"),
+            Self::InvalidNumberPrefix(prefix) => write!(f, "invalid number prefix: {prefix}"),
+            Self::InvalidStartByte(byte) => write!(f, "invalid start byte: {byte:?}"),
+            Self::MissingSecondColorCodeBlock => write!(f, "missing second code block"),
+            Self::NoCodeDigitsFound => write!(f, "no code digits found"),
+            Self::TooManyCodeDigits(at_least) => {
+                write!(f, "too many code digits found: {at_least}+ / {MAX_DIGITS}")
+            }
+            Self::UnexpectedByte(byte) => write!(f, "unexpected byte: {byte:?}"),
+            Self::ValueOutOfBounds(value) => write!(f, "value out of bounds: {value}"),
+        }
+    }
+}
 
 /// Gives u8 iterators the ability to en- / decode bytes to / from ANSI background colors
 pub trait ColorCodec<T>: Sized
@@ -137,14 +171,14 @@ pub struct ColorCode {
 impl ColorCode {
     /// Creates a new color code
     /// # Errors
-    /// * Returns a `String` containing an error message if an error occurs.
-    pub fn new(number: u8) -> Result<Self, String> {
+    /// * Returns a `ansi_color_codec::Error` if an error occurs.
+    pub fn new(number: u8) -> Result<Self, Error> {
         if (0..=COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX).contains(&number)
             || (COLOR_OFFSET_HIGH..=COLOR_OFFSET_HIGH + COLOR_CODE_LOW_MAX).contains(&number)
         {
             Ok(Self { number })
         } else {
-            Err(format!("Invalid color code: {number}"))
+            Err(Error::InvalidColorCode(number))
         }
     }
 
@@ -159,7 +193,7 @@ impl ColorCode {
 }
 
 impl TryFrom<u8> for ColorCode {
-    type Error = String;
+    type Error = Error;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         if value <= COLOR_CODE_LOW_MAX {
@@ -167,7 +201,7 @@ impl TryFrom<u8> for ColorCode {
         } else if value <= COLOR_CODE_MAX {
             Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH)
         } else {
-            Err(format!("Value out of bounds for color code: {value}"))
+            Err(Error::ValueOutOfBounds(value))
         }
     }
 }
@@ -213,29 +247,29 @@ impl<T> ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
 {
-    fn next_header(&mut self) -> Option<Result<(), String>> {
+    fn next_header(&mut self) -> Option<Result<(), Error>> {
         match self.bytes.next() {
             Some(byte) => {
                 if byte == CODE_START {
                     self.bytes.next().map_or_else(
-                        || Some(Err(UNEXPECTED_TERMINATION_MSG.to_string())),
+                        || Some(Err(Error::ByteStreamTerminatedUnexpectedly)),
                         |byte| {
                             if byte as char == NUMBER_PREFIX {
                                 Some(Ok(()))
                             } else {
-                                Some(Err(format!("Invalid number prefix: {byte}")))
+                                Some(Err(Error::InvalidNumberPrefix(byte)))
                             }
                         },
                     )
                 } else {
-                    Some(Err(format!("Invalid start byte: {byte}")))
+                    Some(Err(Error::InvalidStartByte(byte)))
                 }
             }
             None => None,
         }
     }
 
-    fn read_digits(&mut self) -> Result<String, String> {
+    fn read_digits(&mut self) -> Result<String, Error> {
         let mut digits = String::new();
 
         for count in 0..=MAX_DIGITS {
@@ -245,31 +279,31 @@ where
                         if count < MAX_DIGITS {
                             digits.push(byte as char);
                         } else {
-                            return Err(format!("Expected at most {MAX_DIGITS} digits"));
+                            return Err(Error::TooManyCodeDigits(count));
                         }
                     } else if byte as char == NUMBER_SUFFIX {
                         return if digits.is_empty() {
-                            Err("Expected at least one digit".to_string())
+                            Err(Error::NoCodeDigitsFound)
                         } else {
                             Ok(digits)
                         };
                     } else {
-                        return Err(format!("Encountered Unexpected byte \"{byte}\""));
+                        return Err(Error::UnexpectedByte(byte));
                     }
                 }
-                None => return Err(UNEXPECTED_TERMINATION_MSG.to_string()),
+                None => return Err(Error::ByteStreamTerminatedUnexpectedly),
             }
         }
 
         Ok(digits)
     }
 
-    fn parse_color_code(&mut self) -> Result<u8, String> {
+    fn parse_color_code(&mut self) -> Result<u8, Error> {
         let digits = self.read_digits()?;
         self.bytes.next(); // Discard bg-color encoded char
         digits
             .parse::<u8>()
-            .map_or_else(|_| Err(format!("Could not parse u8 from {digits}")), Ok)
+            .map_or_else(|_| Err(Error::InvalidCodeValue(digits)), Ok)
     }
 }
 
@@ -286,7 +320,7 @@ impl<T> Iterator for ColorCodesFromBytes<T>
 where
     T: Iterator<Item = u8>,
 {
-    type Item = Result<ColorCode, String>;
+    type Item = Result<ColorCode, Error>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if let Err(msg) = self.next_header()? {
@@ -301,7 +335,7 @@ where
                     Some(ColorCode::new(sum))
                 }
             }
-            Err(msg) => Some(Err(format!("{msg} while parsing color code"))),
+            Err(error) => Some(Err(error)),
         }
     }
 }
@@ -309,14 +343,14 @@ where
 #[derive(Debug, Eq, PartialEq)]
 pub struct ColorCodesToBytes<T>
 where
-    T: Iterator<Item = Result<ColorCode, String>>,
+    T: Iterator<Item = Result<ColorCode, Error>>,
 {
     codes: T,
 }
 
 impl<T> From<T> for ColorCodesToBytes<T>
 where
-    T: Iterator<Item = Result<ColorCode, String>>,
+    T: Iterator<Item = Result<ColorCode, Error>>,
 {
     fn from(codes: T) -> Self {
         Self { codes }
@@ -325,21 +359,21 @@ where
 
 impl<T> Iterator for ColorCodesToBytes<T>
 where
-    T: Iterator<Item = Result<ColorCode, String>>,
+    T: Iterator<Item = Result<ColorCode, Error>>,
 {
-    type Item = Result<u8, String>;
+    type Item = Result<u8, Error>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.codes.next() {
             Some(high) => match high {
                 Ok(high) => self.codes.next().map_or_else(
-                    || Some(Err("Missing second color code block".to_string())),
+                    || Some(Err(Error::MissingSecondColorCodeBlock)),
                     |low| match low {
                         Ok(low) => Some(Ok(u8::from_color_codes([high, low]))),
-                        Err(msg) => Some(Err(msg)),
+                        Err(error) => Some(Err(error)),
                     },
                 ),
-                Err(msg) => Some(Err(msg)),
+                Err(error) => Some(Err(error)),
             },
             None => None,
         }
