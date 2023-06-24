@@ -7,8 +7,6 @@ use std::sync::{
     Arc,
 };
 
-const STDOUT_WRITE_ERR: &str = "Could not write bytes to STDOUT";
-
 #[derive(Parser)]
 #[clap(about, author, version)]
 struct Args {
@@ -47,20 +45,20 @@ fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
                 None
             }
         })
-        .for_each(|byte| {
-            f.write_all(&[byte]).expect(STDOUT_WRITE_ERR);
-        });
+        .map_while(|byte| f.write_all(&[byte]).ok())
+        .for_each(drop);
 
-    f.flush().expect("Could not flush STDOUT");
+    f.flush().unwrap_or(()); // Ignore write errors here.
 }
 
 fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>, clear: bool) {
-    bytes.encode().for_each(|code| {
-        write!(f, "{code}").expect(STDOUT_WRITE_ERR);
-    });
+    bytes
+        .encode()
+        .map_while(|code| write!(f, "{code}").ok())
+        .for_each(drop);
 
     if clear {
-        write!(f, "{RESET}").expect(STDOUT_WRITE_ERR);
+        write!(f, "{RESET}").unwrap_or(()); // Ignore write errors here.
     }
 }
 
