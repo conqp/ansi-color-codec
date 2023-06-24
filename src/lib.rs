@@ -68,8 +68,8 @@ where
     ///     44, 100, 46, 45, 46, 104, 46, 104, 46, 107, 42, 40, 47, 47, 46, 107, 47, 42, 46, 104,
     ///     46, 44, 42, 106,
     /// ];
-    /// let reference: Vec<ColorCode> = codes.iter().map(
-    ///     |&code| ColorCode::new(code).unwrap()
+    /// let reference: Vec<ColorCode> = codes.iter().filter_map(
+    ///     |&code| ColorCode::new(code).ok()
     /// ).collect();
     /// let code: [u8; 151] = [
     ///     27, 91, 52, 52, 109, 32, 27, 91, 49, 48, 48, 109, 32, 27, 91, 52, 54, 109, 32, 27, 91,
@@ -84,7 +84,7 @@ where
     /// let colors: Vec<ColorCode> = code
     ///     .into_iter()
     ///     .interpret_as_ansi_colors()
-    ///     .map(|color| color.unwrap())
+    ///     .filter_map(Result::ok)
     ///     .collect();
     /// assert_eq!(colors, reference);
     /// ```
@@ -107,7 +107,7 @@ where
     /// let decoded: String = code
     ///     .bytes()
     ///     .ansi_color_decode()
-    ///     .map(|result| result.unwrap() as char)
+    ///     .filter_map(|result| result.map(|byte| byte as char).ok())
     ///     .collect();
     /// assert_eq!(text, decoded);
     /// ```
@@ -135,6 +135,9 @@ pub struct ColorCode {
 }
 
 impl ColorCode {
+    /// Creates a new color code
+    /// # Errors
+    /// * Returns a `String` containing an error message if an error occurs.
     pub fn new(number: u8) -> Result<Self, String> {
         if (0..=COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX).contains(&number)
             || (COLOR_OFFSET_HIGH..=COLOR_OFFSET_HIGH + COLOR_CODE_LOW_MAX).contains(&number)
