@@ -82,14 +82,14 @@ where
     /// ];
     /// let code: Vec<u8> = text
     ///     .bytes()
-    ///     .ansi_color_encode()
+    ///     .encode()
     ///     .map(|color| color.to_string())
     ///     .collect::<String>()
     ///     .bytes()
     ///     .collect();
     /// assert_eq!(code, reference);
     /// ```
-    fn ansi_color_encode(self) -> ColorCodes<T>;
+    fn encode(self) -> ColorCodes<T>;
 
     /// Returns an iterator that interprets all bytes of a u8 iterator as an ANSI color code
     /// sequence
@@ -118,12 +118,12 @@ where
     /// ];
     /// let colors: Vec<ColorCode> = code
     ///     .into_iter()
-    ///     .interpret_as_ansi_colors()
+    ///     .into_ansi_colors()
     ///     .filter_map(Result::ok)
     ///     .collect();
     /// assert_eq!(colors, reference);
     /// ```
-    fn interpret_as_ansi_colors(self) -> ColorCodesFromBytes<T>;
+    fn into_ansi_colors(self) -> ColorCodesFromBytes<T>;
 
     /// Returns an iterator that decodes all bytes interpreted as a sequence of ANSI background
     /// colors to raw bytes
@@ -136,18 +136,18 @@ where
     /// let text = String::from("Hello world.");
     /// let code: String = text
     ///     .bytes()
-    ///     .ansi_color_encode()
+    ///     .encode()
     ///     .map(|color| color.to_string())
     ///     .collect();
     /// let decoded: String = code
     ///     .bytes()
-    ///     .ansi_color_decode()
+    ///     .decode()
     ///     .filter_map(|result| result.map(|byte| byte as char).ok())
     ///     .collect();
     /// assert_eq!(text, decoded);
     /// ```
-    fn ansi_color_decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>> {
-        self.interpret_as_ansi_colors().into()
+    fn decode(self) -> ColorCodesToBytes<ColorCodesFromBytes<T>> {
+        self.into_ansi_colors().into()
     }
 }
 
@@ -155,11 +155,11 @@ impl<T> ColorCodec<T> for T
 where
     T: Iterator<Item = u8>,
 {
-    fn ansi_color_encode(self) -> ColorCodes<T> {
+    fn encode(self) -> ColorCodes<T> {
         self.flat_map(ColorCodePair::from)
     }
 
-    fn interpret_as_ansi_colors(self) -> ColorCodesFromBytes<T> {
+    fn into_ansi_colors(self) -> ColorCodesFromBytes<T> {
         self.into()
     }
 }

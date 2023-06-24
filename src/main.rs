@@ -39,7 +39,7 @@ fn main() {
 
 fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
     bytes
-        .ansi_color_decode()
+        .decode()
         .map_while(|result| match result {
             Ok(byte) => Some(byte),
             Err(error) => {
@@ -55,7 +55,7 @@ fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
 }
 
 fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>, clear: bool) {
-    bytes.ansi_color_encode().for_each(|code| {
+    bytes.encode().for_each(|code| {
         write!(f, "{code}").expect(STDOUT_WRITE_ERR);
     });
 
