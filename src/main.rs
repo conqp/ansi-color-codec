@@ -48,7 +48,7 @@ fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
         .map_while(|byte| f.write_all(&[byte]).ok())
         .for_each(drop);
 
-    f.flush().unwrap_or(()); // Ignore write errors here.
+    f.flush().unwrap_or_else(drop); // Ignore write errors here.
 }
 
 fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>, clear: bool) {
@@ -58,7 +58,7 @@ fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>, clear:
         .for_each(drop);
 
     if clear {
-        write!(f, "{RESET}").unwrap_or(()); // Ignore write errors here.
+        write!(f, "{RESET}").unwrap_or_else(drop); // Ignore write errors here.
     }
 }
 
