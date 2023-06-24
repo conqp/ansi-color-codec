@@ -40,7 +40,7 @@ fn main() {
 fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
     bytes
         .ansi_color_decode()
-        .map_while(Result::ok)
+        .filter_map(Result::ok)
         .for_each(|byte| {
             f.write_all(&[byte]).expect(STDOUT_WRITE_ERR);
         });
@@ -62,5 +62,5 @@ fn stream_stdin(running: Arc<AtomicBool>) -> impl Iterator<Item = u8> {
     BufReader::new(stdin().lock())
         .bytes()
         .take_while(move |_| running.load(Ordering::SeqCst))
-        .map_while(Result::ok)
+        .filter_map(Result::ok)
 }
