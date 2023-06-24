@@ -1,3 +1,4 @@
+use std::array::IntoIter;
 use std::fmt::{Display, Formatter};
 use std::iter::FlatMap;
 
@@ -19,7 +20,7 @@ const SPACE: char = ' ';
 /// Print this str to reset a color code sequence on the terminal
 pub const RESET: &str = "\x1b[0m ";
 
-type ColorCodes<T> = FlatMap<T, [ColorCode; 2], fn(u8) -> [ColorCode; 2]>;
+type ColorCodes<T> = FlatMap<T, ColorCodePair, fn(u8) -> ColorCodePair>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Error {
@@ -155,7 +156,7 @@ where
     T: Iterator<Item = u8>,
 {
     fn ansi_color_encode(self) -> ColorCodes<T> {
-        self.flat_map(|byte| byte.to_color_codes())
+        self.flat_map(ColorCodePair::from)
     }
 
     fn interpret_as_ansi_colors(self) -> ColorCodesFromBytes<T> {
@@ -216,21 +217,33 @@ impl Display for ColorCode {
     }
 }
 
-trait ColorEncodable {
-    fn to_color_codes(&self) -> [ColorCode; 2];
-    fn from_color_codes(color_codes: [ColorCode; 2]) -> Self;
+pub struct ColorCodePair {
+    high: ColorCode,
+    low: ColorCode,
 }
 
-impl ColorEncodable for u8 {
-    fn to_color_codes(&self) -> [ColorCode; 2] {
-        [
-            ColorCode::try_from((self & MASK_HIGH) >> MASK_BITS).unwrap_or_else(|_| unreachable!()),
-            ColorCode::try_from(self & MASK_LOW).unwrap_or_else(|_| unreachable!()),
-        ]
+impl From<u8> for ColorCodePair {
+    fn from(value: u8) -> Self {
+        Self {
+            high: ColorCode::try_from((value & MASK_HIGH) >> MASK_BITS)
+                .unwrap_or_else(|_| unreachable!()),
+            low: ColorCode::try_from(value & MASK_LOW).unwrap_or_else(|_| unreachable!()),
+        }
     }
+}
 
-    fn from_color_codes(color_codes: [ColorCode; 2]) -> Self {
-        (color_codes[0].normalized() << MASK_BITS) + color_codes[1].normalized()
+impl From<ColorCodePair> for u8 {
+    fn from(value: ColorCodePair) -> Self {
+        (value.high.normalized() << MASK_BITS) + value.low.normalized()
+    }
+}
+
+impl IntoIterator for ColorCodePair {
+    type Item = ColorCode;
+    type IntoIter = IntoIter<ColorCode, 2>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        [self.high, self.low].into_iter()
     }
 }
 
@@ -368,7 +381,7 @@ where
                 Ok(high) => self.codes.next().map_or_else(
                     || Some(Err(Error::MissingSecondColorCodeBlock)),
                     |low| match low {
-                        Ok(low) => Some(Ok(u8::from_color_codes([high, low]))),
+                        Ok(low) => Some(Ok(u8::from(ColorCodePair { high, low }))),
                         Err(error) => Some(Err(error)),
                     },
                 ),
