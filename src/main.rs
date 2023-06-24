@@ -40,7 +40,13 @@ fn main() {
 fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
     bytes
         .ansi_color_decode()
-        .filter_map(Result::ok)
+        .map_while(|result| match result {
+            Ok(byte) => Some(byte),
+            Err(error) => {
+                eprintln!("{error}");
+                None
+            }
+        })
         .for_each(|byte| {
             f.write_all(&[byte]).expect(STDOUT_WRITE_ERR);
         });
