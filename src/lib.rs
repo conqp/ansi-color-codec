@@ -224,9 +224,8 @@ trait ColorEncodable {
 impl ColorEncodable for u8 {
     fn to_color_codes(&self) -> [ColorCode; 2] {
         [
-            ColorCode::try_from((self & MASK_HIGH) >> MASK_BITS)
-                .map_or_else(|_| unreachable!(), |high| high),
-            ColorCode::try_from(self & MASK_LOW).map_or_else(|_| unreachable!(), |low| low),
+            ColorCode::try_from((self & MASK_HIGH) >> MASK_BITS).unwrap_or_else(|_| unreachable!()),
+            ColorCode::try_from(self & MASK_LOW).unwrap_or_else(|_| unreachable!()),
         ]
     }
 
