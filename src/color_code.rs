@@ -2,6 +2,7 @@ use crate::constants::{CODE_START, MASK_LOW, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
 use std::fmt::{Display, Formatter};
 
+const CHAR_START: char = CODE_START as char;
 const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
 const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
 const COLOR_CODE_MAX: u8 = MASK_LOW;
@@ -56,6 +57,6 @@ impl TryFrom<u8> for AnsiColorCode {
 impl Display for AnsiColorCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let number = self.number;
-        write!(f, "{CODE_START}{NUMBER_PREFIX}{number}{NUMBER_SUFFIX} ")
+        write!(f, "{CHAR_START}{NUMBER_PREFIX}{number}{NUMBER_SUFFIX} ")
     }
 }
