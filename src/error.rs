@@ -1,9 +1,10 @@
 use std::fmt::{Display, Formatter};
+use std::num::ParseIntError;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Error {
     ByteStreamTerminatedUnexpectedly,
-    InvalidCodeValue(String),
+    InvalidCodeValue(ParseIntError),
     InvalidColorCode(u8),
     InvalidNumberPrefix(u8),
     InvalidStartByte(u8),

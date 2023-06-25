@@ -76,7 +76,7 @@ where
         self.bytes.next(); // Discard bg-color encoded char
         digits
             .parse::<u8>()
-            .map_or_else(|_| Err(Error::InvalidCodeValue(digits)), Ok)
+            .map_or_else(|error| Err(Error::InvalidCodeValue(error)), Ok)
     }
 }
 
