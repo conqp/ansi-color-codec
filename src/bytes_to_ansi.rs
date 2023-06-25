@@ -53,23 +53,8 @@ where
         for count in 0..=MAX_DIGITS {
             match self.bytes.next() {
                 Some(byte) => {
-                    if byte.is_ascii_digit() {
-                        if count < MAX_DIGITS {
-                            digits.push(byte as char);
-                        } else {
-                            return Err(Error::TooManyCodeDigits {
-                                at_least: count,
-                                max: MAX_DIGITS,
-                            });
-                        }
-                    } else if byte as char == NUMBER_SUFFIX {
-                        return if digits.is_empty() {
-                            Err(Error::NoCodeDigitsFound)
-                        } else {
-                            Ok(digits)
-                        };
-                    } else {
-                        return Err(Error::UnexpectedByte(byte));
+                    if collect_digits(&mut digits, byte, count)? {
+                        return Ok(digits);
                     }
                 }
                 None => return Err(Error::ByteStreamTerminatedUnexpectedly),
@@ -110,5 +95,27 @@ where
             }
             Err(error) => Some(Err(error)),
         }
+    }
+}
+
+fn collect_digits(digits: &mut String, byte: u8, count: u8) -> Result<bool, Error> {
+    if byte.is_ascii_digit() {
+        if count < MAX_DIGITS {
+            digits.push(byte as char);
+            Ok(false) // Not done
+        } else {
+            Err(Error::TooManyCodeDigits {
+                at_least: count,
+                max: MAX_DIGITS,
+            })
+        }
+    } else if byte as char == NUMBER_SUFFIX {
+        if digits.is_empty() {
+            Err(Error::NoCodeDigitsFound)
+        } else {
+            Ok(true) // Done
+        }
+    } else {
+        Err(Error::UnexpectedByte(byte))
     }
 }
