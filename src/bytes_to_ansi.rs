@@ -18,25 +18,21 @@ where
     T: Iterator<Item = u8>,
 {
     fn next_header(&mut self) -> Option<Result<(), Error>> {
-        match self.bytes.next() {
-            Some(byte) => {
-                if byte == CODE_START {
-                    self.bytes.next().map_or_else(
-                        || Some(Err(Error::ByteStreamTerminatedUnexpectedly)),
-                        |byte| {
-                            if byte as char == NUMBER_PREFIX {
-                                Some(Ok(()))
-                            } else {
-                                Some(Err(Error::InvalidNumberPrefix(byte)))
-                            }
-                        },
-                    )
-                } else {
-                    Some(Err(Error::InvalidStartByte(byte)))
-                }
+        self.bytes.next().map(|byte| {
+            if byte == CODE_START {
+                self.bytes
+                    .next()
+                    .map_or(Err(Error::ByteStreamTerminatedUnexpectedly), |byte| {
+                        if byte as char == NUMBER_PREFIX {
+                            Ok(())
+                        } else {
+                            Err(Error::InvalidNumberPrefix(byte))
+                        }
+                    })
+            } else {
+                Err(Error::InvalidStartByte(byte))
             }
-            None => None,
-        }
+        })
     }
 
     fn read_color_code(&mut self) -> Result<u8, Error> {
