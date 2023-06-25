@@ -8,6 +8,8 @@ const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
 const COLOR_CODE_MAX: u8 = MASK_LOW;
 const COLOR_OFFSET_HIGH: u8 = 100;
 const COLOR_OFFSET_LOW: u8 = 40;
+const HIGH_CODES_UPPER_BOUNDARY: u8 = COLOR_OFFSET_HIGH + COLOR_CODE_LOW_MAX;
+const LOW_CODES_UPPER_BOUNDARY: u8 = COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX;
 const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 
 #[allow(clippy::module_name_repetitions)]
@@ -20,13 +22,11 @@ impl AnsiColorCode {
     /// Creates a new color code
     /// # Errors
     /// * Returns a `ansi_color_codec::Error` if an error occurs.
-    pub fn new(number: u8) -> Result<Self, Error> {
-        if (0..=COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX).contains(&number)
-            || (COLOR_OFFSET_HIGH..=COLOR_OFFSET_HIGH + COLOR_CODE_LOW_MAX).contains(&number)
-        {
-            Ok(Self { number })
-        } else {
-            Err(Error::InvalidColorCode(number))
+    pub const fn new(number: u8) -> Result<Self, Error> {
+        match number {
+            number @ (0..=LOW_CODES_UPPER_BOUNDARY
+            | COLOR_OFFSET_HIGH..=HIGH_CODES_UPPER_BOUNDARY) => Ok(Self { number }),
+            number => Err(Error::InvalidColorCode(number)),
         }
     }
 
