@@ -39,6 +39,14 @@ where
         }
     }
 
+    fn read_color_code(&mut self) -> Result<u8, Error> {
+        let digits = self.read_digits()?;
+        self.bytes.next(); // Discard bg-color encoded char
+        digits
+            .parse::<u8>()
+            .map_or_else(|error| Err(Error::InvalidCodeValue(error)), Ok)
+    }
+
     fn read_digits(&mut self) -> Result<String, Error> {
         let mut digits = String::new();
 
@@ -70,14 +78,6 @@ where
 
         Ok(digits)
     }
-
-    fn parse_color_code(&mut self) -> Result<u8, Error> {
-        let digits = self.read_digits()?;
-        self.bytes.next(); // Discard bg-color encoded char
-        digits
-            .parse::<u8>()
-            .map_or_else(|error| Err(Error::InvalidCodeValue(error)), Ok)
-    }
 }
 
 impl<T> From<T> for BytesToAnsiColorCodesIterator<T>
@@ -100,12 +100,12 @@ where
             return Some(Err(msg));
         }
 
-        match self.parse_color_code() {
+        match self.read_color_code() {
             Ok(sum) => {
                 if sum == 0 {
                     None
                 } else {
-                    Some(AnsiColorCode::new(sum))
+                    Some(AnsiColorCode::try_from(sum))
                 }
             }
             Err(error) => Some(Err(error)),
