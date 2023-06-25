@@ -44,12 +44,10 @@ impl TryFrom<u8> for AnsiColorCode {
     type Error = Error;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
-        if value <= COLOR_CODE_LOW_MAX {
-            Self::new(value + COLOR_OFFSET_LOW)
-        } else if value <= COLOR_CODE_MAX {
-            Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH)
-        } else {
-            Err(Error::ValueOutOfBounds(value))
+        match value {
+            value @ ..=COLOR_CODE_LOW_MAX => Self::new(value + COLOR_OFFSET_LOW),
+            value @ ..=COLOR_CODE_MAX => Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH),
+            value => Err(Error::ValueOutOfBounds(value)),
         }
     }
 }
