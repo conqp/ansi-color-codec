@@ -8,7 +8,6 @@ const COLOR_CODE_MAX: u8 = MASK_LOW;
 const COLOR_OFFSET_HIGH: u8 = 100;
 const COLOR_OFFSET_LOW: u8 = 40;
 const MASK_TRIPLET: u8 = MASK_LOW >> 1;
-const SPACE: char = ' ';
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Eq, PartialEq)]
@@ -56,10 +55,7 @@ impl TryFrom<u8> for AnsiColorCode {
 
 impl Display for AnsiColorCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}{}{}{}{}",
-            CODE_START as char, NUMBER_PREFIX, self.number, NUMBER_SUFFIX, SPACE
-        )
+        let number = self.number;
+        write!(f, "{CODE_START}{NUMBER_PREFIX}{number}{NUMBER_SUFFIX} ")
     }
 }
