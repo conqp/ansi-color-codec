@@ -1,9 +1,14 @@
-use crate::constants::{
-    CODE_START, COLOR_CODE_HIGH_BIT, COLOR_CODE_LOW_MAX, COLOR_CODE_MAX, COLOR_OFFSET_HIGH,
-    COLOR_OFFSET_LOW, MASK_TRIPLET, NUMBER_PREFIX, NUMBER_SUFFIX, SPACE,
-};
+use crate::constants::{CODE_START, MASK_LOW, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
 use std::fmt::{Display, Formatter};
+
+const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
+const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
+const COLOR_CODE_MAX: u8 = MASK_LOW;
+const COLOR_OFFSET_HIGH: u8 = 100;
+const COLOR_OFFSET_LOW: u8 = 40;
+const MASK_TRIPLET: u8 = MASK_LOW >> 1;
+const SPACE: char = ' ';
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Eq, PartialEq)]

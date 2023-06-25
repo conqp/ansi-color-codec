@@ -1,6 +1,8 @@
 use crate::color_code::AnsiColorCode;
-use crate::constants::{CODE_START, MAX_DIGITS, NUMBER_PREFIX, NUMBER_SUFFIX};
+use crate::constants::{CODE_START, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
+
+pub const MAX_DIGITS: u8 = 3;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Eq, PartialEq)]
