@@ -15,7 +15,7 @@ const MASK_LOW: u8 = 0b0000_1111;
 const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct AnsiColorCode {
     number: u8,
 }

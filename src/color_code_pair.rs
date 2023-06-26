@@ -3,6 +3,7 @@ use crate::constants::MASK_BITS;
 use std::array::IntoIter;
 
 #[allow(clippy::module_name_repetitions)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct AnsiColorCodePair {
     high: AnsiColorCode,
     low: AnsiColorCode,
