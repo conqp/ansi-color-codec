@@ -1,4 +1,4 @@
-use crate::constants::{CODE_START, MASK_LOW, NUMBER_PREFIX, NUMBER_SUFFIX};
+use crate::constants::{CODE_START, MASK_BITS, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
 use std::fmt::{Display, Formatter};
 
@@ -9,6 +9,8 @@ const COLOR_OFFSET_HIGH: u8 = 100;
 const COLOR_OFFSET_LOW: u8 = 40;
 const HIGH_CODES_UPPER_BOUNDARY: u8 = COLOR_OFFSET_HIGH + COLOR_CODE_LOW_MAX;
 const LOW_CODES_UPPER_BOUNDARY: u8 = COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX;
+const MASK_HIGH: u8 = 0b1111_0000;
+const MASK_LOW: u8 = 0b0000_1111;
 const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 
 #[allow(clippy::module_name_repetitions)]
@@ -23,7 +25,15 @@ impl AnsiColorCode {
         Self { number }
     }
 
-    pub const fn from_byte_half(byte: u8) -> Self {
+    pub const fn from_lower_byte_half(byte: u8) -> Self {
+        Self::from_byte_half(byte & MASK_LOW)
+    }
+
+    pub const fn from_upper_byte_half(byte: u8) -> Self {
+        Self::from_byte_half((byte & MASK_HIGH) >> MASK_BITS)
+    }
+
+    const fn from_byte_half(byte: u8) -> Self {
         match byte {
             value @ ..=COLOR_CODE_LOW_MAX => Self::new(value + COLOR_OFFSET_LOW),
             value => Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH),

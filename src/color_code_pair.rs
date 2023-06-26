@@ -1,9 +1,6 @@
 use crate::color_code::AnsiColorCode;
-use crate::constants::MASK_LOW;
+use crate::constants::MASK_BITS;
 use std::array::IntoIter;
-
-const MASK_BITS: u8 = 4;
-const MASK_HIGH: u8 = 0b1111_0000;
 
 #[allow(clippy::module_name_repetitions)]
 pub struct AnsiColorCodePair {
@@ -12,10 +9,10 @@ pub struct AnsiColorCodePair {
 }
 
 impl From<u8> for AnsiColorCodePair {
-    fn from(value: u8) -> Self {
+    fn from(byte: u8) -> Self {
         Self {
-            high: AnsiColorCode::from_byte_half((value & MASK_HIGH) >> MASK_BITS),
-            low: AnsiColorCode::from_byte_half(value & MASK_LOW),
+            high: AnsiColorCode::from_upper_byte_half(byte),
+            low: AnsiColorCode::from_lower_byte_half(byte),
         }
     }
 }
