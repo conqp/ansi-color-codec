@@ -6,14 +6,14 @@ pub const MAX_DIGITS: u8 = 3;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Eq, PartialEq)]
-pub struct BytesToAnsiColorCodesIterator<T>
+pub struct BytesAsAnsiColorsIterator<T>
 where
     T: Iterator<Item = u8>,
 {
     bytes: T,
 }
 
-impl<T> BytesToAnsiColorCodesIterator<T>
+impl<T> BytesAsAnsiColorsIterator<T>
 where
     T: Iterator<Item = u8>,
 {
@@ -61,7 +61,7 @@ where
     }
 }
 
-impl<T> From<T> for BytesToAnsiColorCodesIterator<T>
+impl<T> From<T> for BytesAsAnsiColorsIterator<T>
 where
     T: Iterator<Item = u8>,
 {
@@ -70,7 +70,7 @@ where
     }
 }
 
-impl<T> Iterator for BytesToAnsiColorCodesIterator<T>
+impl<T> Iterator for BytesAsAnsiColorsIterator<T>
 where
     T: Iterator<Item = u8>,
 {

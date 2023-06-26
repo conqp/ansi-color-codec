@@ -1,5 +1,5 @@
 use crate::ansi_to_bytes::AnsiColorCodesToBytesIterator;
-use crate::bytes_to_ansi::BytesToAnsiColorCodesIterator;
+use crate::bytes_to_ansi::BytesAsAnsiColorsIterator;
 use crate::color_code_pair::AnsiColorCodePair;
 use std::iter::FlatMap;
 
@@ -40,7 +40,7 @@ where
     /// ```
     fn encode(self) -> ColorCodes<T>;
 
-    fn into_ansi_colors(self) -> BytesToAnsiColorCodesIterator<T>;
+    fn into_ansi_colors(self) -> BytesAsAnsiColorsIterator<T>;
 
     /// Returns an iterator that decodes all bytes interpreted as a sequence of ANSI background
     /// colors to raw bytes
@@ -63,7 +63,7 @@ where
     ///     .collect();
     /// assert_eq!(text, decoded);
     /// ```
-    fn decode(self) -> AnsiColorCodesToBytesIterator<BytesToAnsiColorCodesIterator<T>> {
+    fn decode(self) -> AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>> {
         self.into_ansi_colors().into()
     }
 }
@@ -76,7 +76,7 @@ where
         self.flat_map(AnsiColorCodePair::from)
     }
 
-    fn into_ansi_colors(self) -> BytesToAnsiColorCodesIterator<T> {
+    fn into_ansi_colors(self) -> BytesAsAnsiColorsIterator<T> {
         self.into()
     }
 }
