@@ -3,7 +3,6 @@ name = "ansi-color-codec"
 authors = ["Richard Neumann <mail@richard-neumann.de>"]
 description = "Encode bytes as ANSI background colors"
 license = "MIT"
-license-file = "LICENSE"
 homepage = "https://github.com/conqp/ansi-color-codec/"
 repository = "https://github.com/conqp/ansi-color-codec/"
 readme = "README.md"
