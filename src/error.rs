@@ -5,7 +5,6 @@ use std::num::ParseIntError;
 pub enum Error {
     ByteStreamTerminatedUnexpectedly,
     InvalidCodeValue(ParseIntError),
-    InvalidColorCode(u8),
     InvalidNumberPrefix(u8),
     InvalidStartByte(u8),
     MissingSecondColorCodeBlock,
@@ -22,7 +21,6 @@ impl Display for Error {
                 write!(f, "byte stream terminated unexpectedly")
             }
             Self::InvalidCodeValue(value) => write!(f, "invalid code value: {value}"),
-            Self::InvalidColorCode(code) => write!(f, "invalid color code: {code:?}"),
             Self::InvalidNumberPrefix(prefix) => write!(f, "invalid number prefix: {prefix}"),
             Self::InvalidStartByte(byte) => write!(f, "invalid start byte: {byte:?}"),
             Self::MissingSecondColorCodeBlock => write!(f, "missing second code block"),

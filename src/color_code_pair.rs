@@ -1,5 +1,5 @@
 use crate::color_code::AnsiColorCode;
-use crate::constants::{COLOR_OFFSET_HIGH, COLOR_OFFSET_LOW, MASK_TRIPLET};
+use crate::constants::MASK_LOW;
 use std::array::IntoIter;
 
 const MASK_BITS: u8 = 4;
@@ -14,8 +14,8 @@ pub struct AnsiColorCodePair {
 impl From<u8> for AnsiColorCodePair {
     fn from(value: u8) -> Self {
         Self {
-            high: AnsiColorCode::new(((value & MASK_HIGH) >> MASK_BITS) + COLOR_OFFSET_LOW),
-            low: AnsiColorCode::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH),
+            high: AnsiColorCode::from_byte((value & MASK_HIGH) >> MASK_BITS),
+            low: AnsiColorCode::from_byte(value & MASK_LOW),
         }
     }
 }
