@@ -23,7 +23,7 @@ impl AnsiColorCode {
         Self { number }
     }
 
-    pub const fn from_byte(byte: u8) -> Self {
+    pub const fn from_byte_half(byte: u8) -> Self {
         match byte {
             value @ ..=COLOR_CODE_LOW_MAX => Self::new(value + COLOR_OFFSET_LOW),
             value => Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH),

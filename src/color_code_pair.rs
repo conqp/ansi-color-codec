@@ -14,8 +14,8 @@ pub struct AnsiColorCodePair {
 impl From<u8> for AnsiColorCodePair {
     fn from(value: u8) -> Self {
         Self {
-            high: AnsiColorCode::from_byte((value & MASK_HIGH) >> MASK_BITS),
-            low: AnsiColorCode::from_byte(value & MASK_LOW),
+            high: AnsiColorCode::from_byte_half((value & MASK_HIGH) >> MASK_BITS),
+            low: AnsiColorCode::from_byte_half(value & MASK_LOW),
         }
     }
 }
