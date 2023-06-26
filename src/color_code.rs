@@ -16,14 +16,12 @@ const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
-pub struct AnsiColorCode {
-    number: u8,
-}
+pub struct AnsiColorCode(u8);
 
 impl AnsiColorCode {
     /// Creates a new color code
     pub const fn new(number: u8) -> Self {
-        Self { number }
+        Self(number)
     }
 
     pub const fn from_lower_byte_half(byte: u8) -> Self {
@@ -57,17 +55,16 @@ impl TryFrom<u8> for AnsiColorCode {
 
 impl Display for AnsiColorCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let number = self.number;
-        write!(f, "{CHAR_START}{NUMBER_PREFIX}{number}{NUMBER_SUFFIX} ")
+        write!(f, "{CHAR_START}{NUMBER_PREFIX}{}{NUMBER_SUFFIX} ", self.0)
     }
 }
 
 impl From<AnsiColorCode> for u8 {
     fn from(code: AnsiColorCode) -> Self {
-        if code.number < COLOR_OFFSET_HIGH {
-            code.number - COLOR_OFFSET_LOW
+        if code.0 < COLOR_OFFSET_HIGH {
+            code.0 - COLOR_OFFSET_LOW
         } else {
-            code.number - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT
+            code.0 - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT
         }
     }
 }
