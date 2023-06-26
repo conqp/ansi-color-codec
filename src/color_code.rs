@@ -41,15 +41,6 @@ impl AnsiColorCode {
             _ => unreachable!(),
         }
     }
-
-    #[must_use]
-    pub const fn normalized(&self) -> u8 {
-        if self.number < COLOR_OFFSET_HIGH {
-            self.number - COLOR_OFFSET_LOW
-        } else {
-            self.number - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT
-        }
-    }
 }
 
 impl TryFrom<u8> for AnsiColorCode {
@@ -68,5 +59,15 @@ impl Display for AnsiColorCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let number = self.number;
         write!(f, "{CHAR_START}{NUMBER_PREFIX}{number}{NUMBER_SUFFIX} ")
+    }
+}
+
+impl From<AnsiColorCode> for u8 {
+    fn from(code: AnsiColorCode) -> Self {
+        if code.number < COLOR_OFFSET_HIGH {
+            code.number - COLOR_OFFSET_LOW
+        } else {
+            code.number - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT
+        }
     }
 }

@@ -25,7 +25,7 @@ impl From<(AnsiColorCode, AnsiColorCode)> for AnsiColorCodePair {
 
 impl From<AnsiColorCodePair> for u8 {
     fn from(value: AnsiColorCodePair) -> Self {
-        (value.high.normalized() << MASK_BITS) + value.low.normalized()
+        (Self::from(value.high) << MASK_BITS) + Self::from(value.low)
     }
 }
 
