@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter};
 
 const CHAR_START: char = CODE_START as char;
 const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
+const COLOR_CODE_HIGH_MAX: u8 = MASK_LOW;
 const COLOR_CODE_LOW_MAX: u8 = MASK_TRIPLET;
 const COLOR_OFFSET_HIGH: u8 = 100;
 const COLOR_OFFSET_LOW: u8 = 40;
@@ -36,7 +37,8 @@ impl AnsiColorCode {
     const fn from_byte_half(byte: u8) -> Self {
         match byte {
             value @ ..=COLOR_CODE_LOW_MAX => Self::new(value + COLOR_OFFSET_LOW),
-            value => Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH),
+            value @ ..=COLOR_CODE_HIGH_MAX => Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH),
+            _ => unreachable!(),
         }
     }
 
