@@ -40,7 +40,8 @@ where
     /// ```
     fn encode(self) -> ColorCodes<T>;
 
-    fn into_ansi_colors(self) -> BytesAsAnsiColorsIterator<T>;
+    /// Parses ANSI color codes from a byte iterator
+    fn parse(self) -> BytesAsAnsiColorsIterator<T>;
 
     /// Returns an iterator that decodes all bytes interpreted as a sequence of ANSI background
     /// colors to raw bytes
@@ -64,7 +65,7 @@ where
     /// assert_eq!(text, decoded);
     /// ```
     fn decode(self) -> AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>> {
-        self.into_ansi_colors().into()
+        self.parse().into()
     }
 }
 
@@ -76,7 +77,7 @@ where
         self.flat_map(AnsiColorCodePair::from)
     }
 
-    fn into_ansi_colors(self) -> BytesAsAnsiColorsIterator<T> {
+    fn parse(self) -> BytesAsAnsiColorsIterator<T> {
         self.into()
     }
 }
