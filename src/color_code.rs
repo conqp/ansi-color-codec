@@ -20,7 +20,7 @@ const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 pub struct AnsiColorCode(u8);
 
 impl AnsiColorCode {
-    /// Parses an ANSI color code from the lower half of a byte
+    /// Parses an [`AnsiColorCode`] from the lower half of a byte
     ///
     /// # Arguments
     /// * `byte` - The byte to parse from
@@ -29,7 +29,7 @@ impl AnsiColorCode {
         Self::from_byte_half(byte & MASK_LOW)
     }
 
-    /// Parses an ANSI color code from the upper half of a byte
+    /// Parses an [`AnsiColorCode`] from the upper half of a byte
     ///
     /// # Arguments
     /// * `byte` - The byte to parse from
@@ -68,13 +68,13 @@ impl Display for AnsiColorCode {
 impl TryFrom<u8> for AnsiColorCode {
     type Error = Error;
 
-    /// Attempts to crate an ANSI color code from an unsigned byte
+    /// Attempts to crate an [`AnsiColorCode`] from an unsigned byte
     ///
     /// # Arguments
     /// * `number` - The unsigned byte to parse
     ///
     /// # Errors
-    /// * `Error::ValueOutOfBounds` - if the number is not within valid bounds
+    /// * [`Error::ValueOutOfBounds`] - if the number is not within valid bounds
     fn try_from(number: u8) -> Result<Self, Self::Error> {
         match number {
             number @ (COLOR_OFFSET_LOW..=LOW_CODES_UPPER_BOUNDARY
