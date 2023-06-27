@@ -47,6 +47,12 @@ impl AnsiColorCode {
     }
 }
 
+impl Display for AnsiColorCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{CHAR_START}{NUMBER_PREFIX}{}{NUMBER_SUFFIX} ", self.0)
+    }
+}
+
 impl TryFrom<u8> for AnsiColorCode {
     type Error = Error;
 
@@ -56,11 +62,5 @@ impl TryFrom<u8> for AnsiColorCode {
             | COLOR_OFFSET_HIGH..=HIGH_CODES_UPPER_BOUNDARY) => Ok(Self(number)),
             number => Err(Error::ValueOutOfBounds(number)),
         }
-    }
-}
-
-impl Display for AnsiColorCode {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{CHAR_START}{NUMBER_PREFIX}{}{NUMBER_SUFFIX} ", self.0)
     }
 }
