@@ -31,7 +31,7 @@ where
                 Ok(high) => self.codes.next().map_or_else(
                     || Some(Err(Error::MissingSecondColorCodeBlock)),
                     |low| match low {
-                        Ok(low) => Some(Ok(u8::from(AnsiColorCodePair::from((high, low))))),
+                        Ok(low) => Some(Ok(u8::from(AnsiColorCodePair::from([high, low])))),
                         Err(error) => Some(Err(error)),
                     },
                 ),
