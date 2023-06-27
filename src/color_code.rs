@@ -46,7 +46,7 @@ impl TryFrom<u8> for AnsiColorCode {
 
     fn try_from(number: u8) -> Result<Self, Self::Error> {
         match number {
-            number @ (0..=LOW_CODES_UPPER_BOUNDARY
+            number @ (COLOR_OFFSET_LOW..=LOW_CODES_UPPER_BOUNDARY
             | COLOR_OFFSET_HIGH..=HIGH_CODES_UPPER_BOUNDARY) => Ok(Self::new(number)),
             number => Err(Error::ValueOutOfBounds(number)),
         }
