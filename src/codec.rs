@@ -88,6 +88,12 @@ where
         self.into()
     }
     fn decode(self) -> AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>> {
-        self.parse().into()
+        <Self as AnsiColorCodec<
+            T,
+            FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>,
+            BytesAsAnsiColorsIterator<T>,
+            AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>,
+        >>::parse(self)
+        .into()
     }
 }
