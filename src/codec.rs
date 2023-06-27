@@ -7,9 +7,8 @@ use std::iter::FlatMap;
 
 /// Gives u8 iterators the ability to en- / decode bytes to / from ANSI background colors
 #[allow(clippy::module_name_repetitions)]
-pub trait AnsiColorCodec<T, E, P, D>
+pub trait AnsiColorCodec<E, P, D>
 where
-    T: Iterator<Item = u8>,
     E: Iterator<Item = AnsiColorCode>,
     P: Iterator<Item = Result<AnsiColorCode, Error>>,
     D: Iterator<Item = Result<u8, Error>>,
@@ -72,7 +71,6 @@ where
 
 impl<T>
     AnsiColorCodec<
-        T,
         FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>,
         BytesAsAnsiColorsIterator<T>,
         AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>,
@@ -89,7 +87,6 @@ where
     }
     fn decode(self) -> AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>> {
         <Self as AnsiColorCodec<
-            T,
             FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>,
             BytesAsAnsiColorsIterator<T>,
             AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>,
