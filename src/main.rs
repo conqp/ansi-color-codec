@@ -1,11 +1,13 @@
-use ansi_color_codec::{AnsiColorCodec, RESET};
+use std::io::{BufReader, BufWriter, Read, stdin, stdout, Write};
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
+
 use clap::Parser;
 use ctrlc::set_handler;
-use std::io::{stdin, stdout, BufReader, BufWriter, Read, Write};
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
+
+use ansi_color_codec::{AnsiColorCodec, RESET};
 
 #[derive(Parser)]
 #[clap(about, author, version)]
@@ -38,10 +40,11 @@ fn main() {
 fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
     bytes
         .decode()
-        .map_while(|result| match result {
+        .enumerate()
+        .filter_map(|(index, result)| match result {
             Ok(byte) => Some(byte),
             Err(error) => {
-                eprintln!("{error}");
+                eprintln!("{error} at {index}");
                 None
             }
         })
