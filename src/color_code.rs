@@ -19,11 +19,6 @@ const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 pub struct AnsiColorCode(u8);
 
 impl AnsiColorCode {
-    /// Creates a new color code
-    pub const fn new(number: u8) -> Self {
-        Self(number)
-    }
-
     pub const fn from_lower_byte_half(byte: u8) -> Self {
         Self::from_byte_half(byte & MASK_LOW)
     }
@@ -34,8 +29,8 @@ impl AnsiColorCode {
 
     const fn from_byte_half(byte: u8) -> Self {
         match byte {
-            value @ ..=COLOR_CODE_LOW_MAX => Self::new(value + COLOR_OFFSET_LOW),
-            value @ ..=COLOR_CODE_HIGH_MAX => Self::new((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH),
+            value @ ..=COLOR_CODE_LOW_MAX => Self(value + COLOR_OFFSET_LOW),
+            value @ ..=COLOR_CODE_HIGH_MAX => Self((value & MASK_TRIPLET) + COLOR_OFFSET_HIGH),
             _ => unreachable!(),
         }
     }
@@ -47,7 +42,7 @@ impl TryFrom<u8> for AnsiColorCode {
     fn try_from(number: u8) -> Result<Self, Self::Error> {
         match number {
             number @ (COLOR_OFFSET_LOW..=LOW_CODES_UPPER_BOUNDARY
-            | COLOR_OFFSET_HIGH..=HIGH_CODES_UPPER_BOUNDARY) => Ok(Self::new(number)),
+            | COLOR_OFFSET_HIGH..=HIGH_CODES_UPPER_BOUNDARY) => Ok(Self(number)),
             number => Err(Error::ValueOutOfBounds(number)),
         }
     }
