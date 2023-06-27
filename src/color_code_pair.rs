@@ -4,29 +4,23 @@ use std::array::IntoIter;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
-pub struct AnsiColorCodePair {
-    high: AnsiColorCode,
-    low: AnsiColorCode,
-}
+pub struct AnsiColorCodePair(u8);
 
 impl From<u8> for AnsiColorCodePair {
     fn from(byte: u8) -> Self {
-        Self {
-            high: AnsiColorCode::from_upper_byte_half(byte),
-            low: AnsiColorCode::from_lower_byte_half(byte),
-        }
+        Self(byte)
     }
 }
 
 impl From<(AnsiColorCode, AnsiColorCode)> for AnsiColorCodePair {
     fn from((high, low): (AnsiColorCode, AnsiColorCode)) -> Self {
-        Self { high, low }
+        Self((u8::from(high) << MASK_BITS) + u8::from(low))
     }
 }
 
 impl From<AnsiColorCodePair> for u8 {
     fn from(value: AnsiColorCodePair) -> Self {
-        (Self::from(value.high) << MASK_BITS) + Self::from(value.low)
+        value.0
     }
 }
 
@@ -35,6 +29,10 @@ impl IntoIterator for AnsiColorCodePair {
     type IntoIter = IntoIter<AnsiColorCode, 2>;
 
     fn into_iter(self) -> Self::IntoIter {
-        [self.high, self.low].into_iter()
+        [
+            AnsiColorCode::from_upper_byte_half(self.0),
+            AnsiColorCode::from_lower_byte_half(self.0),
+        ]
+        .into_iter()
     }
 }
