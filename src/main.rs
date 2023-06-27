@@ -1,7 +1,7 @@
-use std::io::{BufReader, BufWriter, Read, stdin, stdout, Write};
+use std::io::{stdin, stdout, BufReader, BufWriter, Read, Write};
 use std::sync::{
-    Arc,
     atomic::{AtomicBool, Ordering},
+    Arc,
 };
 
 use clap::Parser;

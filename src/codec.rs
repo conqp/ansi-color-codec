@@ -3,7 +3,8 @@ use crate::bytes_to_ansi::BytesAsAnsiColorsIterator;
 use crate::color_code::AnsiColorCode;
 use crate::color_code_pair::AnsiColorCodePair;
 use crate::Error;
-use std::iter::FlatMap;
+use parallel_itertools::{ThreadedIter, ThreadedMap};
+use std::iter::Flatten;
 
 /// Gives u8 iterators the ability to en- / decode bytes to / from ANSI background colors
 #[allow(clippy::module_name_repetitions)]
@@ -71,15 +72,16 @@ where
 
 impl<T>
     AnsiColorCodec<
-        FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>,
+        Flatten<ThreadedMap<T, fn(u8) -> AnsiColorCodePair, AnsiColorCodePair>>,
         BytesAsAnsiColorsIterator<T>,
         AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>,
     > for T
 where
     T: Iterator<Item = u8>,
 {
-    fn encode(self) -> FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair> {
-        self.flat_map(AnsiColorCodePair::from)
+    fn encode(self) -> Flatten<ThreadedMap<T, fn(u8) -> AnsiColorCodePair, AnsiColorCodePair>> {
+        self.parallel_map(AnsiColorCodePair::from as fn(u8) -> AnsiColorCodePair, None)
+            .flatten()
     }
 
     fn parse(self) -> BytesAsAnsiColorsIterator<T> {
@@ -87,7 +89,7 @@ where
     }
     fn decode(self) -> AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>> {
         <Self as AnsiColorCodec<
-            FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>,
+            Flatten<ThreadedMap<T, fn(u8) -> AnsiColorCodePair, AnsiColorCodePair>>,
             BytesAsAnsiColorsIterator<T>,
             AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>,
         >>::parse(self)
