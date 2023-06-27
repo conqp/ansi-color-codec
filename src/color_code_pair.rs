@@ -14,7 +14,7 @@ impl From<u8> for AnsiColorCodePair {
 
 impl From<(AnsiColorCode, AnsiColorCode)> for AnsiColorCodePair {
     fn from((high, low): (AnsiColorCode, AnsiColorCode)) -> Self {
-        Self((u8::from(high) << MASK_BITS) + u8::from(low))
+        Self((high.to_byte_half() << MASK_BITS) + low.to_byte_half())
     }
 }
 

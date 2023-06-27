@@ -37,6 +37,14 @@ impl AnsiColorCode {
             _ => unreachable!(),
         }
     }
+
+    pub const fn to_byte_half(self) -> u8 {
+        if self.0 < COLOR_OFFSET_HIGH {
+            self.0 - COLOR_OFFSET_LOW
+        } else {
+            self.0 - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT
+        }
+    }
 }
 
 impl TryFrom<u8> for AnsiColorCode {
@@ -54,15 +62,5 @@ impl TryFrom<u8> for AnsiColorCode {
 impl Display for AnsiColorCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{CHAR_START}{NUMBER_PREFIX}{}{NUMBER_SUFFIX} ", self.0)
-    }
-}
-
-impl From<AnsiColorCode> for u8 {
-    fn from(code: AnsiColorCode) -> Self {
-        if code.0 < COLOR_OFFSET_HIGH {
-            code.0 - COLOR_OFFSET_LOW
-        } else {
-            code.0 - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT
-        }
     }
 }
