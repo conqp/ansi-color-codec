@@ -7,5 +7,6 @@ mod constants;
 mod error;
 
 pub use codec::AnsiColorCodec;
+pub use color_code::AnsiColorCode;
 pub use constants::RESET;
 pub use error::Error;
