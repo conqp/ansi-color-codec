@@ -81,16 +81,16 @@ where
             return Some(Err(msg));
         }
 
-        match self.read_color_code() {
-            Ok(sum) => {
+        self.read_color_code().map_or_else(
+            |error| Some(Err(error)),
+            |sum| {
                 if sum == 0 {
                     None
                 } else {
                     Some(AnsiColorCode::try_from(sum))
                 }
-            }
-            Err(error) => Some(Err(error)),
-        }
+            },
+        )
     }
 }
 
