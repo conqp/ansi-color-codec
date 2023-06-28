@@ -3,8 +3,8 @@ use crate::bytes_to_ansi::BytesAsAnsiColorsIterator;
 use crate::color_code::AnsiColorCode;
 use crate::color_code_pair::AnsiColorCodePair;
 use crate::Error;
-use parallel_itertools::{ThreadedIter, ThreadedMap};
 use std::iter::Flatten;
+use threaded_map::{ThreadedMap, ThreadedMappable};
 
 /// Gives u8 iterators the ability to en- / decode bytes to / from ANSI background colors
 #[allow(clippy::module_name_repetitions)]
