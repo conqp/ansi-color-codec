@@ -83,7 +83,7 @@ where
     type Decoder = AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>;
 
     fn encode(self) -> Self::Encoder {
-        self.parallel_map(AnsiColorCodePair::from as fn(u8) -> AnsiColorCodePair, None)
+        self.threaded_map(AnsiColorCodePair::from as fn(u8) -> AnsiColorCodePair, None)
             .flatten()
     }
 
