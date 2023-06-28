@@ -7,29 +7,50 @@ use std::iter::FlatMap;
 
 /// Gives u8 iterators the ability to en- / decode bytes to / from ANSI background colors
 #[allow(clippy::module_name_repetitions)]
-pub trait AnsiColorCodec
+pub trait AnsiColorCodec: AnsiColorEncoder + AnsiColorDecoder + Sized {
+    fn encode(self) -> <Self as AnsiColorEncoder>::Encoder {
+        <Self as AnsiColorEncoder>::encode(self)
+    }
+
+    fn parse(self) -> <Self as AnsiColorDecoder>::Parser {
+        <Self as AnsiColorDecoder>::parse(self)
+    }
+
+    fn decode(self) -> <Self as AnsiColorDecoder>::Decoder {
+        <Self as AnsiColorDecoder>::decode(self)
+    }
+}
+
+/// Gives u8 iterators the ability to encode bytes to ANSI background colors
+pub trait AnsiColorEncoder
 where
     Self::Encoder: Iterator<Item = AnsiColorCode>,
+{
+    type Encoder;
+    type Error;
+
+    fn encode(self) -> Self::Encoder;
+}
+
+/// Gives u8 iterators the ability to decode bytes from ANSI background colors
+pub trait AnsiColorDecoder
+where
     Self::Parser: Iterator<Item = Result<AnsiColorCode, Self::Error>>,
     Self::Decoder: Iterator<Item = Result<u8, Self::Error>>,
 {
-    type Encoder;
     type Parser;
     type Decoder;
     type Error;
 
-    fn encode(self) -> Self::Encoder;
     fn parse(self) -> Self::Parser;
     fn decode(self) -> Self::Decoder;
 }
 
-impl<T> AnsiColorCodec for T
+impl<T> AnsiColorEncoder for T
 where
     T: Iterator<Item = u8>,
 {
     type Encoder = FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>;
-    type Parser = BytesAsAnsiColorsIterator<T>;
-    type Decoder = AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>;
     type Error = Error;
 
     /// Returns an iterator that encodes all bytes as ANSI background colors
@@ -62,6 +83,15 @@ where
     fn encode(self) -> Self::Encoder {
         self.flat_map(AnsiColorCodePair::from)
     }
+}
+
+impl<T> AnsiColorDecoder for T
+where
+    T: Iterator<Item = u8>,
+{
+    type Parser = BytesAsAnsiColorsIterator<T>;
+    type Decoder = AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>;
+    type Error = Error;
 
     /// Parses ANSI color codes from a byte iterator
     fn parse(self) -> Self::Parser {
@@ -90,6 +120,8 @@ where
     /// assert_eq!(text, decoded);
     /// ```
     fn decode(self) -> Self::Decoder {
-        <Self as AnsiColorCodec>::parse(self).into()
+        <Self as AnsiColorDecoder>::parse(self).into()
     }
 }
+
+impl<T> AnsiColorCodec for T where T: AnsiColorEncoder + AnsiColorDecoder {}

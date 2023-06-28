@@ -6,7 +6,7 @@ mod color_code_pair;
 mod constants;
 mod error;
 
-pub use codec::AnsiColorCodec;
+pub use codec::{AnsiColorCodec, AnsiColorDecoder, AnsiColorEncoder};
 pub use color_code::AnsiColorCode;
 pub use constants::RESET;
 pub use error::Error;
