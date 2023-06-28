@@ -8,12 +8,16 @@ use threaded_map::{ThreadedMap, ThreadedMappable};
 
 /// Gives u8 iterators the ability to en- / decode bytes to / from ANSI background colors
 #[allow(clippy::module_name_repetitions)]
-pub trait AnsiColorCodec<E, P, D>
+pub trait AnsiColorCodec
 where
-    E: Iterator<Item = AnsiColorCode>,
-    P: Iterator<Item = Result<AnsiColorCode, Error>>,
-    D: Iterator<Item = Result<u8, Error>>,
+    Self::Encoder: Iterator<Item = AnsiColorCode>,
+    Self::Parser: Iterator<Item = Result<AnsiColorCode, Error>>,
+    Self::Decoder: Iterator<Item = Result<u8, Error>>,
 {
+    type Encoder;
+    type Parser;
+    type Decoder;
+
     /// Returns an iterator that encodes all bytes as ANSI background colors
     ///
     /// # Examples
@@ -41,10 +45,10 @@ where
     ///     .collect();
     /// assert_eq!(code, reference);
     /// ```
-    fn encode(self) -> E;
+    fn encode(self) -> Self::Encoder;
 
     /// Parses ANSI color codes from a byte iterator
-    fn parse(self) -> P;
+    fn parse(self) -> Self::Parser;
 
     /// Returns an iterator that decodes all bytes interpreted as a sequence of ANSI background
     /// colors to raw bytes
@@ -67,28 +71,27 @@ where
     ///     .collect();
     /// assert_eq!(text, decoded);
     /// ```
-    fn decode(self) -> D;
+    fn decode(self) -> Self::Decoder;
 }
 
-impl<T>
-    AnsiColorCodec<
-        Flatten<ThreadedMap<T, fn(u8) -> AnsiColorCodePair, AnsiColorCodePair>>,
-        BytesAsAnsiColorsIterator<T>,
-        AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>,
-    > for T
+impl<T> AnsiColorCodec for T
 where
     T: Iterator<Item = u8>,
 {
-    fn encode(self) -> Flatten<ThreadedMap<T, fn(u8) -> AnsiColorCodePair, AnsiColorCodePair>> {
+    type Encoder = Flatten<ThreadedMap<T, fn(u8) -> AnsiColorCodePair, AnsiColorCodePair>>;
+    type Parser = BytesAsAnsiColorsIterator<T>;
+    type Decoder = AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>;
+
+    fn encode(self) -> Self::Encoder {
         self.parallel_map(AnsiColorCodePair::from as fn(u8) -> AnsiColorCodePair, None)
             .flatten()
     }
 
-    fn parse(self) -> BytesAsAnsiColorsIterator<T> {
+    fn parse(self) -> Self::Parser {
         self.into()
     }
 
-    fn decode(self) -> AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>> {
-        <Self as AnsiColorCodec<_, _, _>>::parse(self).into()
+    fn decode(self) -> Self::Decoder {
+        <Self as AnsiColorCodec>::parse(self).into()
     }
 }
