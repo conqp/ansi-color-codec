@@ -26,18 +26,15 @@ where
     type Item = Result<u8, Error>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.codes.next() {
-            Some(high) => match high {
-                Ok(high) => self.codes.next().map_or_else(
-                    || Some(Err(Error::MissingSecondColorCodeBlock)),
-                    |low| match low {
-                        Ok(low) => Some(Ok(u8::from(AnsiColorCodePair::from([high, low])))),
-                        Err(error) => Some(Err(error)),
-                    },
-                ),
-                Err(error) => Some(Err(error)),
-            },
-            None => None,
-        }
+        self.codes.next().map(|high| match high {
+            Ok(high) => self.codes.next().map_or_else(
+                || Err(Error::MissingSecondColorCodeBlock),
+                |low| match low {
+                    Ok(low) => Ok(u8::from(AnsiColorCodePair::from([high, low]))),
+                    Err(error) => Err(error),
+                },
+            ),
+            Err(error) => Err(error),
+        })
     }
 }
