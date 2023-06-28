@@ -124,4 +124,4 @@ where
     }
 }
 
-impl<T> AnsiColorCodec for T where T: AnsiColorEncoder + AnsiColorDecoder {}
+impl<T> AnsiColorCodec for T where T: AnsiColorEncoder + AnsiColorDecoder + Sized {}
