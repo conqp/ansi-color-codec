@@ -87,6 +87,7 @@ where
     fn parse(self) -> BytesAsAnsiColorsIterator<T> {
         self.into()
     }
+
     fn decode(self) -> AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>> {
         <Self as AnsiColorCodec<
             Flatten<ThreadedMap<T, fn(u8) -> AnsiColorCodePair, AnsiColorCodePair>>,
