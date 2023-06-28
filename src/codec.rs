@@ -18,6 +18,20 @@ where
     type Decoder;
     type Error;
 
+    fn encode(self) -> Self::Encoder;
+    fn parse(self) -> Self::Parser;
+    fn decode(self) -> Self::Decoder;
+}
+
+impl<T> AnsiColorCodec for T
+where
+    T: Iterator<Item = u8>,
+{
+    type Encoder = FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>;
+    type Parser = BytesAsAnsiColorsIterator<T>;
+    type Decoder = AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>;
+    type Error = Error;
+
     /// Returns an iterator that encodes all bytes as ANSI background colors
     ///
     /// # Examples
@@ -45,10 +59,14 @@ where
     ///     .collect();
     /// assert_eq!(code, reference);
     /// ```
-    fn encode(self) -> Self::Encoder;
+    fn encode(self) -> Self::Encoder {
+        self.flat_map(AnsiColorCodePair::from)
+    }
 
     /// Parses ANSI color codes from a byte iterator
-    fn parse(self) -> Self::Parser;
+    fn parse(self) -> Self::Parser {
+        self.into()
+    }
 
     /// Returns an iterator that decodes all bytes interpreted as a sequence of ANSI background
     /// colors to raw bytes
@@ -71,26 +89,6 @@ where
     ///     .collect();
     /// assert_eq!(text, decoded);
     /// ```
-    fn decode(self) -> Self::Decoder;
-}
-
-impl<T> AnsiColorCodec for T
-where
-    T: Iterator<Item = u8>,
-{
-    type Encoder = FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>;
-    type Parser = BytesAsAnsiColorsIterator<T>;
-    type Decoder = AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>;
-    type Error = Error;
-
-    fn encode(self) -> Self::Encoder {
-        self.flat_map(AnsiColorCodePair::from)
-    }
-
-    fn parse(self) -> Self::Parser {
-        self.into()
-    }
-
     fn decode(self) -> Self::Decoder {
         <Self as AnsiColorCodec>::parse(self).into()
     }
