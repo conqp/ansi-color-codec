@@ -10,12 +10,13 @@ use std::iter::FlatMap;
 pub trait AnsiColorCodec
 where
     Self::Encoder: Iterator<Item = AnsiColorCode>,
-    Self::Parser: Iterator<Item = Result<AnsiColorCode, Error>>,
-    Self::Decoder: Iterator<Item = Result<u8, Error>>,
+    Self::Parser: Iterator<Item = Result<AnsiColorCode, Self::Error>>,
+    Self::Decoder: Iterator<Item = Result<u8, Self::Error>>,
 {
     type Encoder;
     type Parser;
     type Decoder;
+    type Error;
 
     /// Returns an iterator that encodes all bytes as ANSI background colors
     ///
@@ -80,6 +81,7 @@ where
     type Encoder = FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>;
     type Parser = BytesAsAnsiColorsIterator<T>;
     type Decoder = AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>;
+    type Error = Error;
 
     fn encode(self) -> Self::Encoder {
         self.flat_map(AnsiColorCodePair::from)
