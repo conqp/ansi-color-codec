@@ -74,9 +74,7 @@ where
     /// let code: Vec<u8> = text
     ///     .bytes()
     ///     .encode()
-    ///     .map(|color| color.to_string())
-    ///     .collect::<String>()
-    ///     .bytes()
+    ///     .flat_map(|color| color.to_string().into_bytes())
     ///     .collect();
     /// assert_eq!(code, reference);
     /// ```
