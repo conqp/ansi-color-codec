@@ -1,13 +1,11 @@
+use ansi_color_codec::{AnsiColorCodec, RESET};
+use clap::Parser;
+use ctrlc::set_handler;
 use std::io::{stdin, stdout, BufReader, BufWriter, Read, Write};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-
-use clap::Parser;
-use ctrlc::set_handler;
-
-use ansi_color_codec::{AnsiColorCodec, RESET};
 
 #[derive(Parser)]
 #[clap(about, author, version)]
