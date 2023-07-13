@@ -5,7 +5,7 @@ use crate::color_code_pair::AnsiColorCodePair;
 use crate::Error;
 use std::iter::FlatMap;
 
-/// Gives u8 iterators the ability to en- / decode bytes to / from ANSI background colors
+/// Gives the ability to en- / decode bytes to / from ANSI background colors
 #[allow(clippy::module_name_repetitions)]
 pub trait AnsiColorCodec: AnsiColorEncoder + AnsiColorDecoder + Sized {
     fn encode(self) -> <Self as AnsiColorEncoder>::Encoder {
