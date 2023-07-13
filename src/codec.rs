@@ -21,7 +21,7 @@ pub trait AnsiColorCodec: AnsiColorEncoder + AnsiColorDecoder + Sized {
     }
 }
 
-/// Gives u8 iterators the ability to encode bytes to ANSI background colors
+/// Gives the ability to encode bytes to ANSI background colors
 pub trait AnsiColorEncoder
 where
     Self::Encoder: Iterator<Item = AnsiColorCode>,
@@ -32,7 +32,7 @@ where
     fn encode(self) -> Self::Encoder;
 }
 
-/// Gives u8 iterators the ability to decode bytes from ANSI background colors
+/// Gives the ability to decode bytes from ANSI background colors
 pub trait AnsiColorDecoder
 where
     Self::Parser: Iterator<Item = Result<AnsiColorCode, Self::Error>>,
