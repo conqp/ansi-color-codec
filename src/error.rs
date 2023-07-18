@@ -33,3 +33,13 @@ impl Display for Error {
         }
     }
 }
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        if let Self::InvalidCodeValue(error) = self {
+            Some(error)
+        } else {
+            None
+        }
+    }
+}
