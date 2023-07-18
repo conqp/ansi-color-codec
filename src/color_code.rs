@@ -25,8 +25,8 @@ impl AnsiColorCode {
     /// # Arguments
     /// * `byte` - The byte to parse from
     #[must_use]
-    pub const fn from_lower_byte_half(byte: u8) -> Self {
-        Self::from_byte_half(byte & MASK_LOW)
+    pub const fn from_lower_nibble(byte: u8) -> Self {
+        Self::from_nibble(byte & MASK_LOW)
     }
 
     /// Parses an [`AnsiColorCode`] from the upper half of a byte
@@ -34,11 +34,11 @@ impl AnsiColorCode {
     /// # Arguments
     /// * `byte` - The byte to parse from
     #[must_use]
-    pub const fn from_upper_byte_half(byte: u8) -> Self {
-        Self::from_byte_half((byte & MASK_HIGH) >> MASK_BITS)
+    pub const fn from_upper_nibble(byte: u8) -> Self {
+        Self::from_nibble((byte & MASK_HIGH) >> MASK_BITS)
     }
 
-    const fn from_byte_half(byte: u8) -> Self {
+    const fn from_nibble(byte: u8) -> Self {
         match byte {
             value @ 0..=COLOR_CODE_LOW_MAX => Self(value + COLOR_OFFSET_LOW),
             value @ COLOR_CODE_HIGH_MIN..=COLOR_CODE_HIGH_MAX => {

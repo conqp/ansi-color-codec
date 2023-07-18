@@ -30,8 +30,8 @@ impl IntoIterator for AnsiColorCodePair {
 
     fn into_iter(self) -> Self::IntoIter {
         [
-            AnsiColorCode::from_upper_byte_half(self.0),
-            AnsiColorCode::from_lower_byte_half(self.0),
+            AnsiColorCode::from_upper_nibble(self.0),
+            AnsiColorCode::from_lower_nibble(self.0),
         ]
         .into_iter()
     }
