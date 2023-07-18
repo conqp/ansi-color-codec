@@ -50,7 +50,7 @@ impl AnsiColorCode {
 
     /// Returns a half-byte sized value from the color code
     #[must_use]
-    pub const fn to_byte_half(self) -> u8 {
+    pub const fn to_nibble(self) -> u8 {
         if self.0 < COLOR_OFFSET_HIGH {
             self.0 - COLOR_OFFSET_LOW
         } else {
