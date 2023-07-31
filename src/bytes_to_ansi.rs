@@ -38,9 +38,7 @@ where
     fn read_color_code(&mut self) -> Result<u8, Error> {
         let digits = self.read_digits()?;
         self.bytes.next(); // Discard bg-color encoded char
-        digits
-            .parse::<u8>()
-            .map_or_else(|error| Err(Error::InvalidCodeValue(error)), Ok)
+        digits.parse::<u8>().map_err(Error::InvalidCodeValue)
     }
 
     fn read_digits(&mut self) -> Result<String, Error> {
