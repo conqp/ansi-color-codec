@@ -1,4 +1,4 @@
-use ansi_color_codec::{AnsiColorCodec, RESET};
+use ansi_color_codec::{Codec, RESET};
 use clap::Parser;
 use ctrlc::set_handler;
 use std::io::{stdin, stdout, BufReader, BufWriter, Read, Write};

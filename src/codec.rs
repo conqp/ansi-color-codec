@@ -1,30 +1,29 @@
-use crate::ansi_to_bytes::AnsiColorCodesToBytesIterator;
-use crate::bytes_to_ansi::BytesAsAnsiColorsIterator;
-use crate::color_code::AnsiColorCode;
-use crate::color_code_pair::AnsiColorCodePair;
+use crate::code::Code;
+use crate::code_pair::CodePair;
+use crate::pair_decoder::PairDecoder;
+use crate::parser::Parser;
 use crate::Error;
 use std::iter::FlatMap;
 
 /// Gives the ability to en- / decode bytes to / from ANSI background colors
-#[allow(clippy::module_name_repetitions)]
-pub trait AnsiColorCodec: AnsiColorEncoder + AnsiColorDecoder + Sized {
-    fn encode(self) -> <Self as AnsiColorEncoder>::Encoder {
-        <Self as AnsiColorEncoder>::encode(self)
+pub trait Codec: Encoder + Decoder + Sized {
+    fn encode(self) -> <Self as Encoder>::Encoder {
+        <Self as Encoder>::encode(self)
     }
 
-    fn parse(self) -> <Self as AnsiColorDecoder>::Parser {
-        <Self as AnsiColorDecoder>::parse(self)
+    fn parse(self) -> <Self as Decoder>::Parser {
+        <Self as Decoder>::parse(self)
     }
 
-    fn decode(self) -> <Self as AnsiColorDecoder>::Decoder {
-        <Self as AnsiColorDecoder>::decode(self)
+    fn decode(self) -> <Self as Decoder>::Decoder {
+        <Self as Decoder>::decode(self)
     }
 }
 
 /// Gives the ability to encode bytes to ANSI background colors
-pub trait AnsiColorEncoder
+pub trait Encoder
 where
-    Self::Encoder: Iterator<Item = AnsiColorCode>,
+    Self::Encoder: Iterator<Item = Code>,
 {
     type Encoder;
     type Error;
@@ -33,9 +32,9 @@ where
 }
 
 /// Gives the ability to decode bytes from ANSI background colors
-pub trait AnsiColorDecoder
+pub trait Decoder
 where
-    Self::Parser: Iterator<Item = Result<AnsiColorCode, Self::Error>>,
+    Self::Parser: Iterator<Item = Result<Code, Self::Error>>,
     Self::Decoder: Iterator<Item = Result<u8, Self::Error>>,
 {
     type Parser;
@@ -46,11 +45,11 @@ where
     fn decode(self) -> Self::Decoder;
 }
 
-impl<T> AnsiColorEncoder for T
+impl<T> Encoder for T
 where
     T: Iterator<Item = u8>,
 {
-    type Encoder = FlatMap<T, AnsiColorCodePair, fn(u8) -> AnsiColorCodePair>;
+    type Encoder = FlatMap<T, CodePair, fn(u8) -> CodePair>;
     type Error = Error;
 
     /// Returns an iterator that encodes all bytes as ANSI background colors
@@ -58,7 +57,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// use ansi_color_codec::AnsiColorCodec;
+    /// use ansi_color_codec::Codec;
     ///
     /// let text = String::from("Hello world.");
     /// let reference: Vec<u8> = vec![
@@ -79,16 +78,16 @@ where
     /// assert_eq!(code, reference);
     /// ```
     fn encode(self) -> Self::Encoder {
-        self.flat_map(AnsiColorCodePair::from)
+        self.flat_map(CodePair::from)
     }
 }
 
-impl<T> AnsiColorDecoder for T
+impl<T> Decoder for T
 where
     T: Iterator<Item = u8>,
 {
-    type Parser = BytesAsAnsiColorsIterator<T>;
-    type Decoder = AnsiColorCodesToBytesIterator<BytesAsAnsiColorsIterator<T>>;
+    type Parser = Parser<T>;
+    type Decoder = PairDecoder<Parser<T>>;
     type Error = Error;
 
     /// Parses ANSI color codes from a byte iterator
@@ -102,7 +101,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// use ansi_color_codec::AnsiColorCodec;
+    /// use ansi_color_codec::Codec;
     ///
     /// let text = String::from("Hello world.");
     /// let code: String = text
@@ -118,8 +117,8 @@ where
     /// assert_eq!(text, decoded);
     /// ```
     fn decode(self) -> Self::Decoder {
-        <Self as AnsiColorDecoder>::parse(self).into()
+        <Self as Decoder>::parse(self).into()
     }
 }
 
-impl<T> AnsiColorCodec for T where T: AnsiColorEncoder + AnsiColorDecoder + Sized {}
+impl<T> Codec for T where T: Encoder + Decoder + Sized {}

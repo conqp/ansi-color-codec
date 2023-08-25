@@ -1,19 +1,18 @@
-use crate::color_code::AnsiColorCode;
+use crate::code::Code;
 use crate::constants::{CODE_START, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
 
 const MAX_DIGITS: u8 = 3;
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Eq, PartialEq)]
-pub struct BytesAsAnsiColorsIterator<T>
+pub struct Parser<T>
 where
     T: Iterator<Item = u8>,
 {
     bytes: T,
 }
 
-impl<T> BytesAsAnsiColorsIterator<T>
+impl<T> Parser<T>
 where
     T: Iterator<Item = u8>,
 {
@@ -59,7 +58,7 @@ where
     }
 }
 
-impl<T> From<T> for BytesAsAnsiColorsIterator<T>
+impl<T> From<T> for Parser<T>
 where
     T: Iterator<Item = u8>,
 {
@@ -68,11 +67,11 @@ where
     }
 }
 
-impl<T> Iterator for BytesAsAnsiColorsIterator<T>
+impl<T> Iterator for Parser<T>
 where
     T: Iterator<Item = u8>,
 {
-    type Item = Result<AnsiColorCode, Error>;
+    type Item = Result<Code, Error>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if let Err(msg) = self.next_header()? {
@@ -85,7 +84,7 @@ where
                 if sum == 0 {
                     None
                 } else {
-                    Some(AnsiColorCode::try_from(sum))
+                    Some(Code::try_from(sum))
                 }
             },
         )

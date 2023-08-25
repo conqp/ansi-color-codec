@@ -1,12 +1,12 @@
-mod ansi_to_bytes;
-mod bytes_to_ansi;
+mod code;
+mod code_pair;
 mod codec;
-mod color_code;
-mod color_code_pair;
 mod constants;
 mod error;
+mod pair_decoder;
+mod parser;
 
-pub use codec::{AnsiColorCodec, AnsiColorDecoder, AnsiColorEncoder};
-pub use color_code::AnsiColorCode;
+pub use code::Code;
+pub use codec::{Codec, Decoder, Encoder};
 pub use constants::RESET;
 pub use error::Error;

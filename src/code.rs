@@ -15,12 +15,11 @@ const MASK_HIGH: u8 = MASK_LOW << MASK_BITS;
 const MASK_LOW: u8 = 0b0000_1111;
 const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
-pub struct AnsiColorCode(u8);
+pub struct Code(u8);
 
-impl AnsiColorCode {
-    /// Parses an [`AnsiColorCode`] from the lower half of a byte
+impl Code {
+    /// Parses an [`Code`] from the lower half of a byte
     ///
     /// # Arguments
     /// * `byte` - The byte to parse from
@@ -29,7 +28,7 @@ impl AnsiColorCode {
         Self::from_nibble(byte & MASK_LOW)
     }
 
-    /// Parses an [`AnsiColorCode`] from the upper half of a byte
+    /// Parses an [`Code`] from the upper half of a byte
     ///
     /// # Arguments
     /// * `byte` - The byte to parse from
@@ -59,16 +58,16 @@ impl AnsiColorCode {
     }
 }
 
-impl Display for AnsiColorCode {
+impl Display for Code {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{CHAR_START}{NUMBER_PREFIX}{}{NUMBER_SUFFIX} ", self.0)
     }
 }
 
-impl TryFrom<u8> for AnsiColorCode {
+impl TryFrom<u8> for Code {
     type Error = Error;
 
-    /// Attempts to crate an [`AnsiColorCode`] from an unsigned byte
+    /// Attempts to crate an [`Code`] from an unsigned byte
     ///
     /// # Arguments
     /// * `number` - The unsigned byte to parse
