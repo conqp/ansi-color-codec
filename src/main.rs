@@ -11,10 +11,10 @@ use std::sync::{
 #[clap(about, author, version)]
 struct Args {
     #[clap(short, long, name = "decode")]
-    pub decode: bool,
+    decode: bool,
 
     #[clap(short, long, name = "no-clear")]
-    pub no_clear: bool,
+    no_clear: bool,
 }
 
 fn main() {
