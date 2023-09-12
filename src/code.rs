@@ -20,7 +20,7 @@ const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 pub struct Code(u8);
 
 impl Code {
-    /// Parses an [`Code`] from the lower half of a byte
+    /// Parses a [`Code`] from the lower half of a byte
     ///
     /// # Arguments
     /// * `byte` - The byte to parse from
@@ -29,7 +29,7 @@ impl Code {
         Self::from_nibble(byte & MASK_LOW)
     }
 
-    /// Parses an [`Code`] from the upper half of a byte
+    /// Parses a [`Code`] from the upper half of a byte
     ///
     /// # Arguments
     /// * `byte` - The byte to parse from
@@ -68,7 +68,7 @@ impl Display for Code {
 impl TryFrom<u8> for Code {
     type Error = Error;
 
-    /// Attempts to crate an [`Code`] from an unsigned byte
+    /// Attempts to crate a [`Code`] from an unsigned byte
     ///
     /// # Arguments
     /// * `number` - The unsigned byte to parse
