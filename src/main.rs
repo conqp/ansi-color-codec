@@ -1,7 +1,7 @@
 use ansi_color_codec::{Codec, RESET};
 use clap::Parser;
 use ctrlc::set_handler;
-use std::io::{stdin, stdout, BufReader, BufWriter, Read, Write};
+use std::io::{stdin, stdout, BufWriter, Read, Write};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
@@ -26,7 +26,7 @@ fn main() {
     set_handler(move || {
         running.store(false, Ordering::SeqCst);
     })
-    .expect("Error setting Ctrl-C handler");
+        .expect("Error setting Ctrl-C handler");
 
     if args.decode {
         decode(&mut stdout, bytes);
@@ -35,7 +35,7 @@ fn main() {
     }
 }
 
-fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
+fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item=u8>) {
     bytes
         .decode()
         .enumerate()
@@ -52,7 +52,7 @@ fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>) {
     f.flush().unwrap_or_else(drop); // Ignore write errors here.
 }
 
-fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>, clear: bool) {
+fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item=u8>, clear: bool) {
     bytes
         .encode()
         .map_while(|code| write!(f, "{code}").ok())
@@ -63,8 +63,8 @@ fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item = u8>, clear:
     }
 }
 
-fn stream_stdin(running: Arc<AtomicBool>) -> impl Iterator<Item = u8> {
-    BufReader::new(stdin().lock())
+fn stream_stdin(running: Arc<AtomicBool>) -> impl Iterator<Item=u8> {
+    stdin().lock()
         .bytes()
         .take_while(move |_| running.load(Ordering::SeqCst))
         .map_while(Result::ok)
