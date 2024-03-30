@@ -1,7 +1,7 @@
 use ansi_color_codec::{Codec, RESET};
 use clap::Parser;
 use ctrlc::set_handler;
-use std::io::{stdin, stdout, BufWriter, Read, Write};
+use std::io::{stdin, stdout, Read, Write};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
@@ -21,12 +21,12 @@ fn main() {
     let args = Args::parse();
     let running = Arc::new(AtomicBool::new(true));
     let bytes = stream_stdin(running.clone());
-    let mut stdout = BufWriter::new(stdout().lock());
+    let mut stdout = stdout().lock();
 
     set_handler(move || {
         running.store(false, Ordering::SeqCst);
     })
-        .expect("Error setting Ctrl-C handler");
+    .expect("Error setting Ctrl-C handler");
 
     if args.decode {
         decode(&mut stdout, bytes);
@@ -35,7 +35,10 @@ fn main() {
     }
 }
 
-fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item=u8>) {
+fn decode<T>(f: &mut T, bytes: impl Iterator<Item = u8>)
+where
+    T: Write,
+{
     bytes
         .decode()
         .enumerate()
@@ -52,7 +55,10 @@ fn decode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item=u8>) {
     f.flush().unwrap_or_else(drop); // Ignore write errors here.
 }
 
-fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item=u8>, clear: bool) {
+fn encode<T>(f: &mut T, bytes: impl Iterator<Item = u8>, clear: bool)
+where
+    T: Write,
+{
     bytes
         .encode()
         .map_while(|code| write!(f, "{code}").ok())
@@ -63,8 +69,9 @@ fn encode(f: &mut BufWriter<impl Write>, bytes: impl Iterator<Item=u8>, clear: b
     }
 }
 
-fn stream_stdin(running: Arc<AtomicBool>) -> impl Iterator<Item=u8> {
-    stdin().lock()
+fn stream_stdin(running: Arc<AtomicBool>) -> impl Iterator<Item = u8> {
+    stdin()
+        .lock()
         .bytes()
         .take_while(move |_| running.load(Ordering::SeqCst))
         .map_while(Result::ok)
