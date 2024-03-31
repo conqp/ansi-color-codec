@@ -35,10 +35,7 @@ fn main() {
     }
 }
 
-fn decode<T>(f: &mut T, bytes: impl Iterator<Item = u8>)
-where
-    T: Write,
-{
+fn decode(f: &mut impl Write, bytes: impl Iterator<Item = u8>) {
     bytes
         .decode()
         .enumerate()
@@ -55,10 +52,7 @@ where
     f.flush().unwrap_or_else(drop); // Ignore write errors here.
 }
 
-fn encode<T>(f: &mut T, bytes: impl Iterator<Item = u8>, clear: bool)
-where
-    T: Write,
-{
+fn encode(f: &mut impl Write, bytes: impl Iterator<Item = u8>, clear: bool) {
     bytes
         .encode()
         .map_while(|code| write!(f, "{code}").ok())
