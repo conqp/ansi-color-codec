@@ -21,7 +21,7 @@ fn main() {
     let args = Args::parse();
     let running = Arc::new(AtomicBool::new(true));
     let bytes = stream_stdin(running.clone());
-    let mut stdout = stdout().lock();
+    let dst = stdout().lock();
 
     set_handler(move || {
         running.store(false, Ordering::SeqCst);
@@ -29,13 +29,13 @@ fn main() {
     .expect("Error setting Ctrl-C handler");
 
     if args.decode {
-        decode(&mut stdout, bytes);
+        decode(bytes, dst);
     } else {
-        encode(&mut stdout, bytes, !args.no_clear);
+        encode(bytes, dst, !args.no_clear);
     }
 }
 
-fn decode(f: &mut impl Write, bytes: impl Iterator<Item = u8>) {
+fn decode(bytes: impl Iterator<Item = u8>, mut dst: impl Write) {
     bytes
         .decode()
         .enumerate()
@@ -46,20 +46,20 @@ fn decode(f: &mut impl Write, bytes: impl Iterator<Item = u8>) {
                 None
             }
         })
-        .map_while(|byte| f.write_all(&[byte]).ok())
+        .map_while(|byte| dst.write_all(&[byte]).ok())
         .for_each(drop);
 
-    f.flush().unwrap_or_else(drop); // Ignore write errors here.
+    dst.flush().unwrap_or_else(drop); // Ignore write errors here.
 }
 
-fn encode(f: &mut impl Write, bytes: impl Iterator<Item = u8>, clear: bool) {
+fn encode(bytes: impl Iterator<Item = u8>, mut dst: impl Write, clear: bool) {
     bytes
         .encode()
-        .map_while(|code| write!(f, "{code}").ok())
+        .map_while(|code| write!(dst, "{code}").ok())
         .for_each(drop);
 
     if clear {
-        write!(f, "{RESET}").unwrap_or_else(drop); // Ignore write errors here.
+        write!(dst, "{RESET}").unwrap_or_else(drop); // Ignore write errors here.
     }
 }
 
