@@ -1,6 +1,7 @@
 use crate::constants::{CODE_START, MASK_BITS, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
 use std::fmt::{Display, Formatter};
+use std::vec::IntoIter;
 
 const CHAR_START: char = CODE_START as char;
 const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
@@ -62,6 +63,15 @@ impl Code {
 impl Display for Code {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{CHAR_START}{NUMBER_PREFIX}{}{NUMBER_SUFFIX} ", self.0)
+    }
+}
+
+impl IntoIterator for Code {
+    type Item = u8;
+    type IntoIter = IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.to_string().into_bytes().into_iter()
     }
 }
 
