@@ -2,7 +2,6 @@ use ansi_color_codec::{Codec, RESET};
 use clap::Parser;
 use ctrlc::set_handler;
 use std::io::{stdin, stdout, Read, Write};
-use std::iter::once;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
@@ -16,9 +15,6 @@ struct Args {
 
     #[clap(short, long, name = "no-clear")]
     no_clear: bool,
-
-    #[clap(short, long)]
-    skip: Vec<char>,
 }
 
 fn main() {
@@ -35,7 +31,7 @@ fn main() {
     if args.decode {
         decode(bytes, dst);
     } else {
-        encode(bytes, dst, !args.no_clear, &args.skip);
+        encode(bytes, dst, !args.no_clear);
     }
 }
 
@@ -56,23 +52,10 @@ fn decode(bytes: impl Iterator<Item = u8>, mut dst: impl Write) {
     dst.flush().unwrap_or_else(drop); // Ignore write errors here.
 }
 
-fn encode(bytes: impl Iterator<Item = u8>, mut dst: impl Write, clear: bool, skip: &[char]) {
+fn encode(bytes: impl Iterator<Item = u8>, mut dst: impl Write, clear: bool) {
     bytes
-        .map_while(|byte| {
-            if skip.contains(&(byte as char)) {
-                if clear {
-                    dst.write_all(RESET.as_bytes()).ok()?;
-                }
-
-                dst.write_all(&[byte]).ok()
-            } else {
-                for code in once(byte).encode() {
-                    write!(dst, "{code}").ok()?;
-                }
-
-                Some(())
-            }
-        })
+        .encode()
+        .map_while(|code| write!(dst, "{code}").ok())
         .for_each(drop);
 
     if clear {
