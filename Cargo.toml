@@ -16,11 +16,12 @@ exclude = [
     "input.txt",
 ]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace]
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
-ctrlc = "3.4"
+ctrlc = { version = "3.4" }
+ansi_color_codec = { path = "ansi_color_codec" }
 
 [profile.release]
 strip = true
