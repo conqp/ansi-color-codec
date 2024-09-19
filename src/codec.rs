@@ -7,14 +7,17 @@ use std::iter::FlatMap;
 
 /// Gives the ability to en- / decode bytes to / from ANSI background colors
 pub trait Codec: Encoder + Decoder + Sized {
+    /// Encode bytes into ANSI colors.
     fn encode(self) -> <Self as Encoder>::Encoder {
         <Self as Encoder>::encode(self)
     }
 
+    /// Parse bytes as ANSI color codes.
     fn parse(self) -> <Self as Decoder>::Parser {
         <Self as Decoder>::parse(self)
     }
 
+    /// Decode ANSI color codes into bytes.
     fn decode(self) -> <Self as Decoder>::Decoder {
         <Self as Decoder>::decode(self)
     }
@@ -25,9 +28,12 @@ pub trait Encoder
 where
     Self::Encoder: Iterator<Item = Code>,
 {
+    /// Type to encode bytes into ANSI color codes.
     type Encoder;
+    /// Error type.
     type Error;
 
+    /// Encode bytes into ANSI colors.
     fn encode(self) -> Self::Encoder;
 }
 
@@ -37,11 +43,17 @@ where
     Self::Parser: Iterator<Item = Result<Code, Self::Error>>,
     Self::Decoder: Iterator<Item = Result<u8, Self::Error>>,
 {
+    /// A type to parse color codes.
     type Parser;
+    /// A type to decode color codes.
     type Decoder;
+    /// Error type.
     type Error;
 
+    /// Parses bytes into color codes.
     fn parse(self) -> Self::Parser;
+
+    /// Decodes color codes to bytes.
     fn decode(self) -> Self::Decoder;
 }
 

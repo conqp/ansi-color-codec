@@ -1,16 +1,31 @@
 use std::fmt::{Display, Formatter};
 use std::num::ParseIntError;
 
+/// Encoding and decoding errors.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Error {
+    /// The input byte stream terminated prematurely.
     ByteStreamTerminatedUnexpectedly,
+    /// An invalid color code value has been encountered.
     InvalidCodeValue(ParseIntError),
+    /// The prefix of the color code number was invalid.
     InvalidNumberPrefix(u8),
+    /// An invalid start byte has been encountered.
     InvalidStartByte(u8),
+    /// The second color code block is missing.
     MissingSecondColorCodeBlock,
+    /// No digits for the color code number were found.
     NoCodeDigitsFound,
-    TooManyCodeDigits { at_least: u8, max: u8 },
+    /// Too many digits for the color code have been encountered.
+    TooManyCodeDigits {
+        /// Number of digits that have been processed.
+        at_least: u8,
+        /// Number of digits that were expected.
+        max: u8,
+    },
+    /// An unexpected byte has been encountered.
     UnexpectedByte(u8),
+    /// The given color code value was out of bounds.
     ValueOutOfBounds(u8),
 }
 

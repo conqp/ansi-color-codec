@@ -1,3 +1,4 @@
+//! Encode and decode bytes with ANSI colors.
 use ansi_color_codec::{Codec, RESET};
 use clap::Parser;
 use ctrlc::set_handler;

@@ -1,3 +1,4 @@
+//! Encode bytes into ANSI color codes and decode ANSI colors into bytes.
 mod code;
 mod code_pair;
 mod codec;
