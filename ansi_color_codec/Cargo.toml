@@ -1,0 +1,17 @@
+[package]
+name = "ansi_color_codec"
+authors = ["Richard Neumann <mail@richard-neumann.de>"]
+description = "Encode bytes as ANSI background colors"
+license = "MIT"
+homepage = "https://github.com/conqp/ansi-color-codec/"
+repository = "https://github.com/conqp/ansi-color-codec/"
+readme = "../README.md"
+documentation = "https://docs.rs/ansi-color-codec"
+keywords = ["ANSI", "color", "encoding"]
+categories = ["encoding"]
+version = "0.7.3"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"], optional = true }
+ctrlc = { version = "3.4", optional = true }
