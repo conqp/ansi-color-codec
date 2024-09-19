@@ -19,8 +19,8 @@ exclude = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.5.4", features = ["derive"], artifact = "bin" }
-ctrlc = "3.4.4"
+clap = { version = "4.5", features = ["derive"], artifact = "bin" }
+ctrlc = "3.4"
 
 [profile.release]
 strip = true
