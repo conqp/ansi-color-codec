@@ -40,12 +40,10 @@ fn decode(bytes: impl Iterator<Item = u8>, mut dst: impl Write) {
     bytes
         .decode()
         .enumerate()
-        .filter_map(|(index, result)| match result {
-            Ok(byte) => Some(byte),
-            Err(error) => {
-                eprintln!("{error} at {index}");
-                None
-            }
+        .filter_map(|(index, result)| {
+            result
+                .inspect_err(|error| eprintln!("{error} at {index}"))
+                .ok()
         })
         .map_while(|byte| dst.write_all(&[byte]).ok())
         .for_each(drop);
