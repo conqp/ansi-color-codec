@@ -13,6 +13,14 @@ use error::Error;
 use clap::Parser;
 use ctrlc::set_handler;
 
+mod code;
+mod code_pair;
+mod codec;
+mod constants;
+mod error;
+mod pair_decoder;
+mod parser;
+
 #[derive(Parser)]
 #[clap(about, author, version)]
 struct Args {
@@ -22,13 +30,6 @@ struct Args {
     #[clap(short, long, name = "no-clear")]
     no_clear: bool,
 }
-mod code;
-mod code_pair;
-mod codec;
-mod constants;
-mod error;
-mod pair_decoder;
-mod parser;
 
 fn main() {
     let args = Args::parse();
