@@ -12,11 +12,6 @@ pub trait Codec: Encoder + Decoder + Sized {
         <Self as Encoder>::encode(self)
     }
 
-    /// Parse bytes as ANSI color codes.
-    fn parse(self) -> <Self as Decoder>::Parser {
-        <Self as Decoder>::parse(self)
-    }
-
     /// Decode ANSI color codes into bytes.
     fn decode(self) -> <Self as Decoder>::Decoder {
         <Self as Decoder>::decode(self)

@@ -1,12 +1,17 @@
-//! Encode and decode bytes with ANSI colors.
-use ansi_color_codec::{Codec, RESET};
-use clap::Parser;
-use ctrlc::set_handler;
+//! Encode bytes into ANSI color codes and decode ANSI colors into bytes.
+
 use std::io::{stdin, stdout, Read, Write};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
+
+use codec::Codec;
+use constants::RESET;
+use error::Error;
+
+use clap::Parser;
+use ctrlc::set_handler;
 
 #[derive(Parser)]
 #[clap(about, author, version)]
@@ -17,6 +22,13 @@ struct Args {
     #[clap(short, long, name = "no-clear")]
     no_clear: bool,
 }
+mod code;
+mod code_pair;
+mod codec;
+mod constants;
+mod error;
+mod pair_decoder;
+mod parser;
 
 fn main() {
     let args = Args::parse();
