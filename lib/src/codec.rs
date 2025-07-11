@@ -6,7 +6,7 @@ use crate::pair_decoder::PairDecoder;
 use crate::parser::Parser;
 use crate::Error;
 
-/// Gives the ability to en- / decode bytes to / from ANSI background colors
+/// Gives the ability to en- / decode bytes to / from ANSI background colors.
 pub trait Codec: Encoder + Decoder + Sized {
     /// Encode bytes into ANSI colors.
     fn encode(self) -> <Self as Encoder>::Encoder {
@@ -19,7 +19,7 @@ pub trait Codec: Encoder + Decoder + Sized {
     }
 }
 
-/// Gives the ability to encode bytes to ANSI background colors
+/// Gives the ability to encode bytes to ANSI background colors.
 pub trait Encoder
 where
     Self::Encoder: Iterator<Item = Code>,
@@ -33,7 +33,7 @@ where
     fn encode(self) -> Self::Encoder;
 }
 
-/// Gives the ability to decode bytes from ANSI background colors
+/// Gives the ability to decode bytes from ANSI background colors.
 pub trait Decoder
 where
     Self::Parser: Iterator<Item = Result<Code, Self::Error>>,
@@ -46,10 +46,10 @@ where
     /// Error type.
     type Error;
 
-    /// Parses bytes into color codes.
+    /// Parse bytes into color codes.
     fn parse(self) -> Self::Parser;
 
-    /// Decodes color codes to bytes.
+    /// Decode color codes to bytes.
     fn decode(self) -> Self::Decoder;
 }
 
@@ -60,7 +60,7 @@ where
     type Encoder = FlatMap<T, CodePair, fn(u8) -> CodePair>;
     type Error = Error;
 
-    /// Returns an iterator that encodes all bytes as ANSI background colors
+    /// Return an iterator that encodes all bytes as ANSI background colors.
     ///
     /// # Examples
     ///
@@ -98,13 +98,13 @@ where
     type Decoder = PairDecoder<Parser<T>>;
     type Error = Error;
 
-    /// Parses ANSI color codes from a byte iterator
+    /// Parse ANSI color codes from a byte iterator.
     fn parse(self) -> Self::Parser {
         self.into()
     }
 
-    /// Returns an iterator that decodes all bytes interpreted as a sequence of ANSI background
-    /// colors to raw bytes
+    /// Return an iterator that decodes all bytes interpreted as a sequence of ANSI background
+    /// colors to raw bytes.
     ///
     /// # Examples
     ///

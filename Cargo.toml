@@ -1,26 +1,5 @@
-[package]
-name = "ansi-color-codec"
-authors = ["Richard Neumann <mail@richard-neumann.de>"]
-description = "Encode bytes as ANSI background colors"
-license = "MIT"
-homepage = "https://github.com/conqp/ansi-color-codec/"
-repository = "https://github.com/conqp/ansi-color-codec/"
-readme = "README.md"
-documentation = "https://docs.rs/ansi-color-codec"
-keywords = ["ANSI", "color", "encoding"]
-categories = ["command-line-utilities", "encoding"]
-version = "0.8.2"
-edition = "2021"
-exclude = [
-    ".gitignore",
-    "input.txt",
-]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-clap = { version = "4.5", features = ["derive"] }
-ctrlc = "3.4"
+[workspace]
+members = ["lib", "cli"]
 
 [profile.release]
 strip = true
@@ -28,7 +7,7 @@ lto = true
 codegen-units = 1
 panic = "abort"
 
-[lints.rust]
+[workspace.lints.rust]
 absolute_paths_not_starting_with_crate = "warn"
 elided_lifetimes_in_paths = "warn"
 keyword_idents = { level = "warn", priority = -1 }
@@ -47,7 +26,7 @@ variant_size_differences = "warn"
 for_loops_over_fallibles = "warn"
 redundant_lifetimes = "warn"
 
-[lints.clippy]
+[workspace.lints.clippy]
 pedantic = { level = "warn", priority = -90 }
 nursery = { level = "warn", priority = -95 }
 perf = { level = "warn", priority = -95 }

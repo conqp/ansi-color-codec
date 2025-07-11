@@ -2,7 +2,7 @@ use crate::code::Code;
 use crate::code_pair::CodePair;
 use crate::error::Error;
 
-/// Decodes color code pairs into values of u8
+/// Decode color code pairs into values of u8.
 #[derive(Debug, Eq, PartialEq)]
 pub struct PairDecoder<T> {
     codes: T,
