@@ -4,17 +4,11 @@ use crate::error::Error;
 
 /// Decodes color code pairs into values of u8
 #[derive(Debug, Eq, PartialEq)]
-pub struct PairDecoder<T>
-where
-    T: Iterator<Item = Result<Code, Error>>,
-{
+pub struct PairDecoder<T> {
     codes: T,
 }
 
-impl<T> From<T> for PairDecoder<T>
-where
-    T: Iterator<Item = Result<Code, Error>>,
-{
+impl<T> From<T> for PairDecoder<T> {
     fn from(codes: T) -> Self {
         Self { codes }
     }
