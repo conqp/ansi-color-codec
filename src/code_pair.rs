@@ -1,6 +1,7 @@
+use std::array::IntoIter;
+
 use crate::code::Code;
 use crate::constants::MASK_BITS;
-use std::array::IntoIter;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct CodePair(u8);

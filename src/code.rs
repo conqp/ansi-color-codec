@@ -1,7 +1,8 @@
-use crate::constants::{CODE_START, MASK_BITS, NUMBER_PREFIX, NUMBER_SUFFIX};
-use crate::error::Error;
 use std::fmt::{Display, Formatter};
 use std::vec::IntoIter;
+
+use crate::constants::{CODE_START, MASK_BITS, NUMBER_PREFIX, NUMBER_SUFFIX};
+use crate::error::Error;
 
 const CHAR_START: char = CODE_START as char;
 const COLOR_CODE_HIGH_BIT: u8 = 0b1000;
