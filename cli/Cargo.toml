@@ -9,7 +9,7 @@ readme = "../README.md"
 documentation = "https://docs.rs/ansi-color-codec-cli"
 keywords = ["ANSI", "color", "encoding"]
 categories = ["command-line-utilities", "encoding"]
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 exclude = [
     ".gitignore",
@@ -17,7 +17,7 @@ exclude = [
 ]
 
 [dependencies]
-ansi-color-codec = { path = "../lib", version = "1.0" }
+ansi-color-codec = "1.0"
 clap = { version = "4.5", features = ["derive"] }
 ctrlc = "3.4"
 
