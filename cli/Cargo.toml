@@ -1,10 +1,23 @@
 [package]
-name = "cli"
-version = "0.1.0"
-edition = "2024"
+name = "ansi-color-codec-cli"
+authors = ["Richard Neumann <mail@richard-neumann.de>"]
+description = "Encode bytes as ANSI background colors"
+license = "MIT"
+homepage = "https://github.com/conqp/ansi-color-codec-cli/"
+repository = "https://github.com/conqp/ansi-color-codec-cli/"
+readme = "../README.md"
+documentation = "https://docs.rs/ansi-color-codec-cli"
+keywords = ["ANSI", "color", "encoding"]
+categories = ["command-line-utilities", "encoding"]
+version = "1.0.0"
+edition = "2021"
+exclude = [
+    ".gitignore",
+    "input.txt",
+]
 
 [dependencies]
-ansi-color-codec = { path = "../lib", version = "0.8" }
+ansi-color-codec = { path = "../lib", version = "1.0" }
 clap = { version = "4.5", features = ["derive"] }
 ctrlc = "3.4"
 

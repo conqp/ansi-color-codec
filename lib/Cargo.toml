@@ -5,12 +5,12 @@ description = "Encode bytes as ANSI background colors"
 license = "MIT"
 homepage = "https://github.com/conqp/ansi-color-codec/"
 repository = "https://github.com/conqp/ansi-color-codec/"
-readme = "README.md"
+readme = "../README.md"
 documentation = "https://docs.rs/ansi-color-codec"
 keywords = ["ANSI", "color", "encoding"]
-categories = ["command-line-utilities", "encoding"]
-version = "0.8.2"
-edition = "2021"
+categories = ["encoding"]
+version = "1.0.0"
+edition = "2024"
 exclude = [
     ".gitignore",
     "input.txt",
