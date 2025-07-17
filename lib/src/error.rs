@@ -1,5 +1,4 @@
 use core::fmt::{self, Display, Formatter};
-use core::num::ParseIntError;
 
 /// Encoding and decoding errors.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -7,7 +6,7 @@ pub enum Error {
     /// The input byte stream terminated prematurely.
     ByteStreamTerminatedUnexpectedly,
     /// An invalid color code value has been encountered.
-    InvalidCodeValue(ParseIntError),
+    InvalidCodeValue,
     /// The prefix of the color code number was invalid.
     InvalidNumberPrefix(u8),
     /// An invalid start byte has been encountered.
@@ -35,7 +34,7 @@ impl Display for Error {
             Self::ByteStreamTerminatedUnexpectedly => {
                 write!(f, "byte stream terminated unexpectedly")
             }
-            Self::InvalidCodeValue(value) => write!(f, "invalid code value: {value}"),
+            Self::InvalidCodeValue => write!(f, "invalid code value"),
             Self::InvalidNumberPrefix(prefix) => write!(f, "invalid number prefix: {prefix}"),
             Self::InvalidStartByte(byte) => write!(f, "invalid start byte: {byte:?}"),
             Self::MissingSecondColorCodeBlock => write!(f, "missing second code block"),
@@ -49,12 +48,4 @@ impl Display for Error {
     }
 }
 
-impl core::error::Error for Error {
-    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
-        if let Self::InvalidCodeValue(error) = self {
-            Some(error)
-        } else {
-            None
-        }
-    }
-}
+impl core::error::Error for Error {}
