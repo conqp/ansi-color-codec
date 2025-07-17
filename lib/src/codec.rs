@@ -1,10 +1,10 @@
 use std::iter::FlatMap;
 
+use crate::Error;
 use crate::code::Code;
 use crate::code_pair::CodePair;
 use crate::pair_decoder::PairDecoder;
 use crate::parser::Parser;
-use crate::Error;
 
 /// Gives the ability to en- / decode bytes to / from ANSI background colors.
 pub trait Codec: Encoder + Decoder + Sized {

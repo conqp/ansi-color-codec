@@ -1,13 +1,10 @@
 //! Encode bytes into ANSI color codes and decode ANSI colors into bytes.
 
 use std::io::{Read, Write, stdin, stdout};
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
-};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use ansi_color_codec::{Codec, RESET};
-
 use clap::Parser;
 use ctrlc::set_handler;
 
