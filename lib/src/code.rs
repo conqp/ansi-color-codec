@@ -1,5 +1,6 @@
-use std::fmt::{Display, Formatter};
-use std::vec::IntoIter;
+use alloc::string::ToString;
+use alloc::vec::IntoIter;
+use core::fmt::{self, Display, Formatter};
 
 use crate::constants::{CODE_START, MASK_BITS, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
@@ -56,7 +57,7 @@ impl Code {
 }
 
 impl Display for Code {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{CHAR_START}{NUMBER_PREFIX}{}{NUMBER_SUFFIX} ", self.0)
     }
 }

@@ -1,4 +1,4 @@
-use std::iter::FlatMap;
+use core::iter::FlatMap;
 
 use crate::Error;
 use crate::code::Code;

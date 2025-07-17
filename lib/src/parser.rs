@@ -1,3 +1,5 @@
+use alloc::string::String;
+
 use crate::code::Code;
 use crate::constants::{CODE_START, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;

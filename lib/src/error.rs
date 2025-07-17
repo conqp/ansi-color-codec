@@ -1,5 +1,5 @@
-use std::fmt::{Display, Formatter};
-use std::num::ParseIntError;
+use core::fmt::{self, Display, Formatter};
+use core::num::ParseIntError;
 
 /// Encoding and decoding errors.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -30,7 +30,7 @@ pub enum Error {
 }
 
 impl Display for Error {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::ByteStreamTerminatedUnexpectedly => {
                 write!(f, "byte stream terminated unexpectedly")
@@ -49,8 +49,8 @@ impl Display for Error {
     }
 }
 
-impl std::error::Error for Error {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl core::error::Error for Error {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         if let Self::InvalidCodeValue(error) = self {
             Some(error)
         } else {

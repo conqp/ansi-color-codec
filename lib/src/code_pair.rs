@@ -1,4 +1,4 @@
-use std::array::IntoIter;
+use core::array::IntoIter;
 
 use crate::code::Code;
 use crate::constants::MASK_BITS;
