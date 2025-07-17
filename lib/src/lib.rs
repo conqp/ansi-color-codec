@@ -1,6 +1,5 @@
 //! Library to encode arbitrary byte streams as ANSI background colors.
 #![no_std]
-extern crate alloc;
 
 pub use codec::Codec;
 pub use constants::RESET;

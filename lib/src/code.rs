@@ -1,5 +1,4 @@
-use alloc::string::ToString;
-use alloc::vec::IntoIter;
+use core::array::IntoIter;
 use core::fmt::{self, Display, Formatter};
 
 use crate::constants::{CODE_START, MASK_BITS, NUMBER_PREFIX, NUMBER_SUFFIX};
@@ -64,10 +63,10 @@ impl Display for Code {
 
 impl IntoIterator for Code {
     type Item = u8;
-    type IntoIter = IntoIter<Self::Item>;
+    type IntoIter = IntoIter<u8, 4>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.to_string().into_bytes().into_iter()
+        [CODE_START, NUMBER_PREFIX as u8, self.0, NUMBER_SUFFIX as u8].into_iter()
     }
 }
 

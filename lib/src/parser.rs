@@ -1,10 +1,9 @@
-use alloc::string::String;
-
 use crate::code::Code;
 use crate::constants::{CODE_START, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
 
-const MAX_DIGITS: u8 = 3;
+const MAX_DIGITS: usize = 3;
+type Digits = heapless::String<MAX_DIGITS>;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Parser<T>
@@ -42,8 +41,8 @@ where
         digits.parse::<u8>().map_err(Error::InvalidCodeValue)
     }
 
-    fn read_digits(&mut self) -> Result<String, Error> {
-        let mut digits = String::new();
+    fn read_digits(&mut self) -> Result<Digits, Error> {
+        let mut digits = Digits::new();
 
         for count in 0..=MAX_DIGITS {
             match self.bytes.next() {
@@ -93,10 +92,12 @@ where
     }
 }
 
-fn collect_digits(digits: &mut String, byte: u8, count: u8) -> Result<bool, Error> {
+fn collect_digits(digits: &mut Digits, byte: u8, count: usize) -> Result<bool, Error> {
     if byte.is_ascii_digit() {
         if count < MAX_DIGITS {
-            digits.push(byte as char);
+            digits
+                .push(byte as char)
+                .expect("Digit should fit into buffer.");
             Ok(false) // Not done
         } else {
             Err(Error::TooManyCodeDigits {

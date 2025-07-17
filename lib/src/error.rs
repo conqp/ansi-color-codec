@@ -2,6 +2,7 @@ use core::fmt::{self, Display, Formatter};
 use core::num::ParseIntError;
 
 /// Encoding and decoding errors.
+#[allow(variant_size_differences)]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Error {
     /// The input byte stream terminated prematurely.
@@ -19,9 +20,9 @@ pub enum Error {
     /// Too many digits for the color code have been encountered.
     TooManyCodeDigits {
         /// Number of digits that have been processed.
-        at_least: u8,
+        at_least: usize,
         /// Number of digits that were expected.
-        max: u8,
+        max: usize,
     },
     /// An unexpected byte has been encountered.
     UnexpectedByte(u8),
