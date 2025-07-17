@@ -26,7 +26,7 @@ impl From<CodePair> for u8 {
 
 impl IntoIterator for CodePair {
     type Item = Code;
-    type IntoIter = IntoIter<Code, 2>;
+    type IntoIter = IntoIter<Self::Item, 2>;
 
     fn into_iter(self) -> Self::IntoIter {
         [

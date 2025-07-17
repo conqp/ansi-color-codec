@@ -63,7 +63,7 @@ impl Display for Code {
 
 impl IntoIterator for Code {
     type Item = u8;
-    type IntoIter = IntoIter<u8, 4>;
+    type IntoIter = IntoIter<Self::Item, 4>;
 
     fn into_iter(self) -> Self::IntoIter {
         [CODE_START, NUMBER_PREFIX as u8, self.0, NUMBER_SUFFIX as u8].into_iter()
