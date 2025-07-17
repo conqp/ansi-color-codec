@@ -2,8 +2,8 @@ use crate::code::Code;
 use crate::constants::{CODE_START, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
 
-const MAX_DIGITS: usize = 3;
-type Digits = heapless::String<MAX_DIGITS>;
+const MAX_DIGITS: u8 = 3;
+type Digits = heapless::String<{ MAX_DIGITS as usize }>;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Parser<T>
@@ -92,7 +92,7 @@ where
     }
 }
 
-fn collect_digits(digits: &mut Digits, byte: u8, count: usize) -> Result<bool, Error> {
+fn collect_digits(digits: &mut Digits, byte: u8, count: u8) -> Result<bool, Error> {
     if byte.is_ascii_digit() {
         if count < MAX_DIGITS {
             digits
