@@ -6,10 +6,7 @@ const MAX_DIGITS: u8 = 3;
 type Digits = heapless::String<{ MAX_DIGITS as usize }>;
 
 #[derive(Debug, Eq, PartialEq)]
-pub struct Parser<T>
-where
-    T: Iterator<Item = u8>,
-{
+pub struct Parser<T> {
     bytes: T,
 }
 
@@ -59,10 +56,7 @@ where
     }
 }
 
-impl<T> From<T> for Parser<T>
-where
-    T: Iterator<Item = u8>,
-{
+impl<T> From<T> for Parser<T> {
     fn from(bytes: T) -> Self {
         Self { bytes }
     }

@@ -1,7 +1,6 @@
 use core::iter::FlatMap;
 
 use crate::Error;
-use crate::code::Code;
 use crate::code_pair::CodePair;
 use crate::pair_decoder::PairDecoder;
 use crate::parser::Parser;
@@ -20,10 +19,7 @@ pub trait Codec: Encoder + Decoder + Sized {
 }
 
 /// Gives the ability to encode bytes to ANSI background colors.
-pub trait Encoder
-where
-    Self::Encoder: Iterator<Item = Code>,
-{
+pub trait Encoder {
     /// Type to encode bytes into ANSI color codes.
     type Encoder;
     /// Error type.
@@ -34,11 +30,7 @@ where
 }
 
 /// Gives the ability to decode bytes from ANSI background colors.
-pub trait Decoder
-where
-    Self::Parser: Iterator<Item = Result<Code, Self::Error>>,
-    Self::Decoder: Iterator<Item = Result<u8, Self::Error>>,
-{
+pub trait Decoder {
     /// A type to parse color codes.
     type Parser;
     /// A type to decode color codes.
@@ -90,10 +82,7 @@ where
     }
 }
 
-impl<T> Decoder for T
-where
-    T: Iterator<Item = u8>,
-{
+impl<T> Decoder for T {
     type Parser = Parser<T>;
     type Decoder = PairDecoder<Parser<T>>;
     type Error = Error;
