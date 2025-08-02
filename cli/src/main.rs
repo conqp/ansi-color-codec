@@ -58,7 +58,7 @@ fn encode(bytes: impl Iterator<Item = u8>, mut dst: impl Write, clear: bool) {
         .for_each(drop);
 
     if clear {
-        write!(dst, "{RESET}").unwrap_or_else(drop); // Ignore write errors here.
+        writeln!(dst, "{RESET}").unwrap_or_else(drop); // Ignore write errors here.
     }
 }
 
