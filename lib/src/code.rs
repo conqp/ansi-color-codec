@@ -15,7 +15,7 @@ const HIGH_CODES_UPPER_BOUNDARY: u8 = COLOR_OFFSET_HIGH + COLOR_CODE_LOW_MAX;
 const LOW_CODES_UPPER_BOUNDARY: u8 = COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX;
 const MASK_HIGH: u8 = 0xF0;
 const MASK_LOW: u8 = 0x0F;
-const MASK_TRIPLET: u8 = 0b000_0111;
+const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 
 /// An ANSI color code segment, encoding a nibble.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
@@ -26,6 +26,18 @@ impl Code {
     #[must_use]
     pub const fn from_byte(byte: u8) -> [Self; 2] {
         [Self::from_upper_nibble(byte), Self::from_lower_nibble(byte)]
+    }
+
+    /// Return a low-nibble representation of the code.
+    #[must_use]
+    pub const fn to_low_nibble(self) -> u8 {
+        self.to_nibble()
+    }
+
+    /// Return a high-nibble representation of the code.
+    #[must_use]
+    pub const fn to_high_nibble(self) -> u8 {
+        self.to_nibble() << MASK_HIGH.trailing_zeros()
     }
 
     /// Parse a [`Code`] from the lower half of a byte.
@@ -42,11 +54,11 @@ impl Code {
 
     /// Return a half-byte sized value from the color code.
     #[must_use]
-    pub const fn to_nibble(self) -> u8 {
+    const fn to_nibble(self) -> u8 {
         if self.0 < COLOR_OFFSET_HIGH {
             self.0 - COLOR_OFFSET_LOW
         } else {
-            (self.0 - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT) << MASK_HIGH.trailing_zeros()
+            self.0 - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT
         }
     }
 

@@ -13,7 +13,7 @@ impl From<u8> for CodePair {
 
 impl From<[Code; 2]> for CodePair {
     fn from([high, low]: [Code; 2]) -> Self {
-        Self(high.to_nibble() | low.to_nibble())
+        Self(high.to_high_nibble() | low.to_low_nibble())
     }
 }
 
