@@ -1,7 +1,7 @@
 use core::array::IntoIter;
 use core::fmt::{self, Display, Formatter};
 
-use crate::constants::{CODE_START, MASK_BITS, NUMBER_PREFIX, NUMBER_SUFFIX};
+use crate::constants::{CODE_START, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
 
 const CHAR_START: char = CODE_START as char;
@@ -13,25 +13,31 @@ const COLOR_OFFSET_HIGH: u8 = 100;
 const COLOR_OFFSET_LOW: u8 = 40;
 const HIGH_CODES_UPPER_BOUNDARY: u8 = COLOR_OFFSET_HIGH + COLOR_CODE_LOW_MAX;
 const LOW_CODES_UPPER_BOUNDARY: u8 = COLOR_OFFSET_LOW + COLOR_CODE_LOW_MAX;
-const MASK_HIGH: u8 = MASK_LOW << MASK_BITS;
-const MASK_LOW: u8 = 0b0000_1111;
-const MASK_TRIPLET: u8 = MASK_LOW >> 1;
+const MASK_HIGH: u8 = 0xF0;
+const MASK_LOW: u8 = 0x0F;
+const MASK_TRIPLET: u8 = 0b000_0111;
 
 /// An ANSI color code segment, encoding a nibble.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct Code(u8);
 
 impl Code {
+    /// Parse a [`Code`] pair from a byte.
+    #[must_use]
+    pub const fn from_byte(byte: u8) -> [Self; 2] {
+        [Self::from_upper_nibble(byte), Self::from_lower_nibble(byte)]
+    }
+
     /// Parse a [`Code`] from the lower half of a byte.
     #[must_use]
-    pub const fn from_lower_nibble(byte: u8) -> Self {
+    const fn from_lower_nibble(byte: u8) -> Self {
         Self::from_nibble(byte & MASK_LOW)
     }
 
     /// Parse a [`Code`] from the upper half of a byte.
     #[must_use]
-    pub const fn from_upper_nibble(byte: u8) -> Self {
-        Self::from_nibble((byte & MASK_HIGH) >> MASK_BITS)
+    const fn from_upper_nibble(byte: u8) -> Self {
+        Self::from_nibble((byte & MASK_HIGH) >> MASK_HIGH.trailing_zeros())
     }
 
     /// Return a half-byte sized value from the color code.
@@ -40,7 +46,7 @@ impl Code {
         if self.0 < COLOR_OFFSET_HIGH {
             self.0 - COLOR_OFFSET_LOW
         } else {
-            self.0 - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT
+            (self.0 - COLOR_OFFSET_HIGH + COLOR_CODE_HIGH_BIT) << MASK_HIGH.trailing_zeros()
         }
     }
 
