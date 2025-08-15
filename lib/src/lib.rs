@@ -9,6 +9,8 @@ mod code;
 mod code_pair;
 mod codec;
 mod constants;
+mod decoder;
+mod encoder;
 mod error;
 mod pair_decoder;
 mod parser;
