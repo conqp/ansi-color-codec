@@ -3,6 +3,8 @@
 
 pub use codec::Codec;
 pub use constants::RESET;
+pub use decoder::Decoder;
+pub use encoder::Encoder;
 pub use error::Error;
 
 mod code;
