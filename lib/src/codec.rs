@@ -6,16 +6,12 @@ use crate::pair_decoder::PairDecoder;
 use crate::parser::Parser;
 
 /// Gives the ability to en- / decode bytes to / from ANSI background colors.
-pub trait Codec: Encoder + Decoder + Sized {
+pub trait Codec: Encoder + Decoder {
     /// Encode bytes into ANSI colors.
-    fn encode(self) -> <Self as Encoder>::Encoder {
-        <Self as Encoder>::encode(self)
-    }
+    fn encode(self) -> <Self as Encoder>::Encoder;
 
     /// Decode ANSI color codes into bytes.
-    fn decode(self) -> <Self as Decoder>::Decoder {
-        <Self as Decoder>::decode(self)
-    }
+    fn decode(self) -> <Self as Decoder>::Decoder;
 }
 
 /// Gives the ability to encode bytes to ANSI background colors.
@@ -118,4 +114,15 @@ impl<T> Decoder for T {
     }
 }
 
-impl<T> Codec for T where T: Encoder + Decoder + Sized {}
+impl<T> Codec for T
+where
+    T: Encoder + Decoder,
+{
+    fn encode(self) -> <Self as Encoder>::Encoder {
+        <Self as Encoder>::encode(self)
+    }
+
+    fn decode(self) -> <Self as Decoder>::Decoder {
+        <Self as Decoder>::decode(self)
+    }
+}
