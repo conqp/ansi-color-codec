@@ -46,6 +46,6 @@ impl<T> Decoder for T {
     /// assert_eq!(text, decoded);
     /// ```
     fn decode(self) -> Self::Decoder {
-        <Self as Decoder>::parse(self).into()
+        self.parse().into()
     }
 }
