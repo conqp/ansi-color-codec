@@ -1,14 +1,11 @@
 use core::iter::FlatMap;
 
-use crate::Error;
 use crate::code_pair::CodePair;
 
 /// Gives the ability to encode bytes to ANSI background colors.
 pub trait Encoder {
     /// Type to encode bytes into ANSI color codes.
     type Encoder;
-    /// Error type.
-    type Error;
 
     /// Encode bytes into ANSI colors.
     fn encode(self) -> Self::Encoder;
@@ -19,7 +16,6 @@ where
     T: Iterator<Item = u8>,
 {
     type Encoder = FlatMap<T, CodePair, fn(u8) -> CodePair>;
-    type Error = Error;
 
     /// Return an iterator that encodes all bytes as ANSI background colors.
     ///

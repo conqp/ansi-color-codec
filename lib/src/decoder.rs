@@ -1,4 +1,3 @@
-use crate::Error;
 use crate::pair_decoder::PairDecoder;
 use crate::parser::Parser;
 
@@ -8,8 +7,6 @@ pub trait Decoder {
     type Parser;
     /// A type to decode color codes.
     type Decoder;
-    /// Error type.
-    type Error;
 
     /// Parse bytes into color codes.
     fn parse(self) -> Self::Parser;
@@ -21,7 +18,6 @@ pub trait Decoder {
 impl<T> Decoder for T {
     type Parser = Parser<T>;
     type Decoder = PairDecoder<Parser<T>>;
-    type Error = Error;
 
     /// Parse ANSI color codes from a byte iterator.
     fn parse(self) -> Self::Parser {
