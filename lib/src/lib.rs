@@ -3,12 +3,16 @@
 
 pub use codec::Codec;
 pub use constants::RESET;
+pub use decoder::Decoder;
+pub use encoder::Encoder;
 pub use error::Error;
 
 mod code;
 mod code_pair;
 mod codec;
 mod constants;
+mod decoder;
+mod encoder;
 mod error;
 mod pair_decoder;
 mod parser;
