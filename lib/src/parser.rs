@@ -3,9 +3,9 @@ use crate::constants::{CODE_START, NUMBER_PREFIX, NUMBER_SUFFIX};
 use crate::error::Error;
 
 const ASCII_DIGIT_MASK: u8 = 0b0011_0000;
-const MULTIPLIERS: [u8; 3] = [1, 10, 100];
-const MAX_DIGITS: u8 = 3;
-type Digits = [Option<u8>; MAX_DIGITS as usize];
+const MAX_DIGITS: usize = 3;
+const MULTIPLIERS: [u8; MAX_DIGITS] = [1, 10, 100];
+type Digits = [Option<u8>; MAX_DIGITS];
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Parser<T> {
