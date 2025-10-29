@@ -3,6 +3,7 @@ use core::array::IntoIter;
 use crate::code::Code;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[repr(transparent)]
 pub struct CodePair(u8);
 
 impl From<u8> for CodePair {

@@ -8,6 +8,7 @@ const MULTIPLIERS: [u8; MAX_DIGITS] = [1, 10, 100];
 type Digits = [Option<u8>; MAX_DIGITS];
 
 #[derive(Debug, Eq, PartialEq)]
+#[repr(transparent)]
 pub struct Parser<T> {
     bytes: T,
 }

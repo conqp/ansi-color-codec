@@ -19,6 +19,7 @@ const MASK_TRIPLET: u8 = MASK_LOW >> 1;
 
 /// An ANSI color code segment, encoding a nibble.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[repr(transparent)]
 pub struct Code(u8);
 
 impl Code {
