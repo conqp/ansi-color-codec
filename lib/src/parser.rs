@@ -77,8 +77,8 @@ where
     type Item = Result<Code, Error>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Err(msg) = self.next_header()? {
-            return Some(Err(msg));
+        if let Err(error) = self.next_header()? {
+            return Some(Err(error));
         }
 
         self.read_color_code().map_or_else(
