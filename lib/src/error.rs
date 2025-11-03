@@ -36,13 +36,13 @@ impl Display for Error {
             }
             Self::InvalidCodeValue => write!(f, "invalid code value"),
             Self::InvalidNumberPrefix(prefix) => write!(f, "invalid number prefix: {prefix}"),
-            Self::InvalidStartByte(byte) => write!(f, "invalid start byte: {byte:?}"),
+            Self::InvalidStartByte(byte) => write!(f, "invalid start byte: {byte:X?}"),
             Self::MissingSecondColorCodeBlock => write!(f, "missing second code block"),
             Self::NoCodeDigitsFound => write!(f, "no code digits found"),
             Self::TooManyCodeDigits { at_least, max } => {
                 write!(f, "too many code digits found: {at_least}+ / {max}")
             }
-            Self::UnexpectedByte(byte) => write!(f, "unexpected byte: {byte:?}"),
+            Self::UnexpectedByte(byte) => write!(f, "unexpected byte: {byte:X?}"),
             Self::ValueOutOfBounds(value) => write!(f, "value out of bounds: {value}"),
         }
     }
