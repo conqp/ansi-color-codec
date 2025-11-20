@@ -1,11 +1,11 @@
 //! Library to encode arbitrary byte streams as ANSI background colors.
 #![no_std]
 
-pub use codec::Codec;
-pub use constants::RESET;
-pub use decoder::Decoder;
-pub use encoder::Encoder;
-pub use error::Error;
+pub use self::codec::Codec;
+pub use self::constants::RESET;
+pub use self::decoder::Decoder;
+pub use self::encoder::Encoder;
+pub use self::error::Error;
 
 mod code;
 mod code_pair;
