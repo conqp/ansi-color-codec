@@ -3,8 +3,6 @@
 
 pub use self::codec::Codec;
 pub use self::constants::RESET;
-pub use self::decoder::Decoder;
-pub use self::encoder::Encoder;
 pub use self::error::Error;
 
 mod code;
