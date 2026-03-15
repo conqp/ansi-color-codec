@@ -18,7 +18,7 @@ exclude = [
 
 [dependencies]
 ansi-color-codec = "4.0"
-clap = { version = "4.5", features = ["derive"] }
+clap = { version = "4.6", features = ["derive"] }
 ctrlc = "3.5"
 
 [lints]
