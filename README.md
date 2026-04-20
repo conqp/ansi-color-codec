@@ -10,7 +10,7 @@ You can use the program as a library or as a command line utility.
 
 ### Library
 
-The library provides a trait `ColorCodec<T>` that allows arbitrary byte
+The library provides a trait `Codec` that allows arbitrary byte
 iterators
 (`Iterator<Item = u8>`) to encode their bytes as ANSI background color
 codes or decode them back again.
