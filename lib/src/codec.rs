@@ -1,32 +1,26 @@
-pub use crate::decoder::Decoder;
-pub use crate::encoder::Encoder;
+use crate::Error;
+use crate::code::Code;
+use crate::decoder::Decoder;
+use crate::encoder::Encoder;
 
 /// Gives the ability to en- / decode bytes to / from ANSI background colors.
 pub trait Codec {
-    /// Type to encode bytes into ANSI color codes.
-    type Encoder;
-    /// A type to decode color codes.
-    type Decoder;
-
     /// Encode bytes into ANSI colors.
-    fn encode(self) -> Self::Encoder;
+    fn encode(self) -> impl Iterator<Item = Code>;
 
     /// Decode ANSI color codes into bytes.
-    fn decode(self) -> Self::Decoder;
+    fn decode(self) -> impl Iterator<Item = Result<u8, Error>>;
 }
 
 impl<T> Codec for T
 where
     T: Encoder + Decoder,
 {
-    type Encoder = <Self as Encoder>::Encoder;
-    type Decoder = <Self as Decoder>::Decoder;
-
-    fn encode(self) -> Self::Encoder {
+    fn encode(self) -> impl Iterator<Item = Code> {
         <Self as Encoder>::encode(self)
     }
 
-    fn decode(self) -> Self::Decoder {
+    fn decode(self) -> impl Iterator<Item = Result<u8, Error>> {
         <Self as Decoder>::decode(self)
     }
 }

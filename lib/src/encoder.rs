@@ -1,22 +1,16 @@
-use core::iter::FlatMap;
-
+use crate::code::Code;
 use crate::code_pair::CodePair;
 
 /// Gives the ability to encode bytes to ANSI background colors.
 pub trait Encoder {
-    /// Type to encode bytes into ANSI color codes.
-    type Encoder;
-
     /// Encode bytes into ANSI colors.
-    fn encode(self) -> Self::Encoder;
+    fn encode(self) -> impl Iterator<Item = Code>;
 }
 
 impl<T> Encoder for T
 where
     T: Iterator<Item = u8>,
 {
-    type Encoder = FlatMap<T, CodePair, fn(u8) -> CodePair>;
-
     /// Return an iterator that encodes all bytes as ANSI background colors.
     ///
     /// # Examples
@@ -42,7 +36,7 @@ where
     ///     .collect();
     /// assert_eq!(code, reference);
     /// ```
-    fn encode(self) -> Self::Encoder {
+    fn encode(self) -> impl Iterator<Item = Code> {
         self.flat_map(CodePair::from)
     }
 }

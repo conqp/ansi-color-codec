@@ -1,29 +1,17 @@
+use crate::Error;
 use crate::pair_decoder::PairDecoder;
 use crate::parser::Parser;
 
 /// Gives the ability to decode bytes from ANSI background colors.
 pub trait Decoder {
-    /// A type to parse color codes.
-    type Parser;
-    /// A type to decode color codes.
-    type Decoder;
-
-    /// Parse bytes into color codes.
-    fn parse(self) -> Self::Parser;
-
     /// Decode color codes to bytes.
-    fn decode(self) -> Self::Decoder;
+    fn decode(self) -> impl Iterator<Item = Result<u8, Error>>;
 }
 
-impl<T> Decoder for T {
-    type Parser = Parser<T>;
-    type Decoder = PairDecoder<Parser<T>>;
-
-    /// Parse ANSI color codes from a byte iterator.
-    fn parse(self) -> Self::Parser {
-        self.into()
-    }
-
+impl<T> Decoder for T
+where
+    T: Iterator<Item = u8>,
+{
     /// Return an iterator that decodes all bytes interpreted as a sequence of ANSI background
     /// colors to raw bytes.
     ///
@@ -45,7 +33,7 @@ impl<T> Decoder for T {
     ///     .collect();
     /// assert_eq!(text, decoded);
     /// ```
-    fn decode(self) -> Self::Decoder {
-        self.parse().into()
+    fn decode(self) -> impl Iterator<Item = Result<u8, Error>> {
+        PairDecoder::from(Parser::from(self))
     }
 }
